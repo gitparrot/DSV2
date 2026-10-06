@@ -1,3 +1,7 @@
 lua = [
 	"scripts/mods/dsv2/*"
 ]
+
+unit = [
+	"units/dsv2/slasher_fanatic/slasher_fanatic"
+]

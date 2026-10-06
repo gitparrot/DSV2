@@ -55,8 +55,16 @@ The skin must use the enemy's skeleton unchanged (the mod pins bone to bone). Im
 blender -b -P pipeline/vt2_bones.py -- extracted/vt2/units/beings/enemies/chaos_fanatic/chr_chaos_fanatic.unit <scratch>.txt --no-fix --blend extracted/vt2/chaos_fanatic_nofix.blend
 blender -b --factory-startup -P pipeline/rig_onto_host.py -- --source ds2_export/slasher.blend --host extracted/vt2/chaos_fanatic_nofix.blend --map pipeline/bone_maps/slasher_to_vt2_human.json --bones pipeline/bones/chaos_fanatic.txt --out ds2_export/slasher_fanatic.fbx
 ```
-Other human-skeleton enemies (Marauder, Gor?) should reuse the same map with their own bones file. Then import
-the FBX in the SDK as `units/dsv2/<id>/<id>` with its materials and set `rigged: true` in the sheet.
+Other human-skeleton enemies (Marauder, Gor?) should reuse the same map with their own bones file.
+
+Then the SDK unit (the Vermintide 2 SDK is Steam app 866060; its compiler imports the FBX itself):
+```
+python pipeline/ds2_tg4.py extracted/ds2/slasherhospital extracted/ds2/slasherhospital/dds --png
+python pipeline/make_sdk_unit.py --id slasher_fanatic --fbx ds2_export/slasher_fanatic.fbx --textures extracted/ds2/slasherhospital/dds/slasherhospital --mod mod/dsv2
+"<SDK>/bin/stingray_win64_dev_x64.exe" --compile-for win32 --source-dir <repo>/mod/dsv2 --data-dir <tmp>/data --bundle-dir <tmp>/bundle --map-source-dir core "<SDK>"
+```
+(run the compiler from the SDK folder). If it compiles with no errors, set `rigged: true` and run `generate.py`,
+which puts the unit in `dsv2.package`.
 
 ## 6. Generate, build, play (fills `tested_in_game`)
 ```

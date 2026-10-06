@@ -35,7 +35,7 @@
    "hide_inventory": true,
    "gibs": "original Vermintide gibs; the skin's limb is hidden with the host bone (verify)",
    "setting": "faction_chaos",
-   "rigged": false,
+   "rigged": true,
    "tested_in_game": false
   },
   {

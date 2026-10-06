@@ -67,7 +67,7 @@ plus the full 168-node scene graph as comments.
   tree: `root_point > j_hips > j_spine > j_spine_scale > j_spine1 > ...`, 1 root. The script uses both imports.
 - `generate.py` now emits the Fanatic's 99 links (`dsv2_skins.lua`).
 
-**Step 5, Slasher on the Fanatic: rigged in Blender; SDK import still to do.** `ds2_export/slasher_fanatic.fbx`
+**Step 5, Slasher on the Fanatic: done (rigged in Blender, imported and compiled with the VT2 SDK).** `ds2_export/slasher_fanatic.fbx`
 (+ `.blend`, git-ignored) = the Slasher's mesh on the Fanatic's own 168-node skeleton.
 - Why the host skeleton is used unchanged: `dsv2.lua` pins each skin bone to the host bone of the same name with
   `World.link_unit`, so the skin's rest pose must equal the host's. Any axis or unit conversion the SDK applies to
@@ -85,14 +85,30 @@ plus the full 168-node scene graph as comments.
 - Checked: fitted joints land 0.0 cm off; 0 unweighted vertices; the FBX re-imports with the host's 168 bones at
   0.00 mm / 0.000° rest difference, 28 weight groups all linked, textures embedded; a posed test (arm raised, leg
   bent, head turned) moves the Slasher with the Fanatic's own mesh.
+- SDK (2026-10-05): Steam app 866060 "Warhammer: Vermintide 2 SDK" installed at
+  `D:\SteamLibrary\steamapps\common\Vermintide 2 SDK` (owner approved; app id from vmb's config). It is the old
+  Bitsquid pipeline (no editor), and its compiler `bin/stingray_win64_dev_x64.exe` has its own FBX importer with skin
+  support: a `.unit` next to an `.fbx` of the same name compiles to a skinned unit. No `.bsi` needed (BBT's BSI
+  exporter can't write skins anyway). Facts found by trial:
+  - `.texture` sources must be uncompressed ("Only uncompressed DDS supported as intermediate texture format"), so
+    `ds2_tg4.py --png` now decodes DXT1/DXT5 to PNG;
+  - Blender FBX gives a warning only ("unrecognized DCC, converting to centimeter"), harmless under link_unit;
+  - material = core `standard_base` (skinned unless `SKINNED_DISABLED`), graph written by `make_sdk_unit.py`:
+    base colour `_c`, normal from `_n` alpha+green via `decode_normal` (so the DXT5_NM map works in game, unlike
+    the FBX), roughness = 1 - `_sp`.r.
+- `pipeline/make_sdk_unit.py` writes `mod/dsv2/units/dsv2/slasher_fanatic/` (.unit, .material, 3 .texture: committed)
+  and copies the .fbx/.png beside them (git-ignored). `rigged: true` adds the unit to `dsv2.package` via generate.py.
+- Checked: the real `mod/dsv2` compiles with 0 errors (bundle `f31b22786dfa9b41`, 2.8 MB). Unpacking that bundle and
+  importing the compiled unit with BBT shows 10 skinned meshes on the Fanatic's `j_*` joints, 17,901 vertices, all
+  weights summing to 1 (`root_point` appears only as zero-weight padding).
+- Not yet seen in game. The compile used `--compile-for win32` straight to a scratch folder; the Workshop item
+  (step 2, `vmb create` / `vmb build`) does not exist yet.
 - Look: the 0.6 m blades hang forward-down along the Fanatic's forearms and cross over the head when the elbow bends
   fully. The head stands upright (the Slasher normally hunches), so its hanging split jaw juts forward. The
   backwards-twisted left foot is in the original model.
 
 ## Open questions (block the first in-game build)
-1. Step 5 in the SDK: import `slasher_fanatic.fbx` as `units/dsv2/slasher_fanatic/slasher_fanatic` with materials,
-   then set `enemy_skins.rigged`. The DXT5_NM normal map is wired in `slasher.blend` but does not survive the FBX
-   export (base colour and specular do).
+1. Step 2 (private Workshop item via vmb) and step 6 (build, play, `tested_in_game`) are next for the Slasher.
 2. `tests/test_mod.lua` was not re-run on the PC (no Lua 5.1 here); the change is generated data only.
 3. Other Necromorphs: `char_str\npc` names seen in DAT6-9, mapping still to confirm: `div` (Divider?), `exp`
    (Exploder?), `inf` (Infector?), `leap` (Leaper?), `pack_boy`/`pack_girl` (The Pack), `stalker`, `tripod`, `pois`,

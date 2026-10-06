@@ -5,6 +5,9 @@ ds2_export/
 *.dds
 *.blend
 *.blend1
+# Dead Space 2 assets copied into the mod for the SDK build (see pipeline/make_sdk_unit.py)
+mod/dsv2/units/**/*.png
+mod/dsv2/units/**/*.tga
 # SDK / builder output
 mod/dsv2/bundleV2/
 mod/dsv2/.temp/

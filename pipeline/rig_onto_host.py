@@ -170,4 +170,9 @@ for o in [host_arm, *src_meshes]:
 bpy.ops.export_scene.fbx(filepath=out_fbx, use_selection=True, add_leaf_bones=False, bake_anim=False,
                          use_armature_deform_only=False, path_mode="COPY", embed_textures=True,
                          mesh_smooth_type="FACE")
-print(f"[rig] wrote {out_fbx}")
+sidecar = {"armature": host_arm.name, "meshes": sorted(o.name for o in src_meshes),
+           "materials": sorted({m.name for o in src_meshes for m in o.data.materials if m}),
+           "weight_targets": sorted({g.name for o in src_meshes for g in o.vertex_groups})}
+with open(os.path.splitext(out_fbx)[0] + ".json", "w", encoding="utf-8") as f:
+    json.dump(sidecar, f, indent=1)
+print(f"[rig] wrote {out_fbx} (+ .json with mesh/material names for make_sdk_unit.py)")

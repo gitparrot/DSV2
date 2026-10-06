@@ -53,10 +53,10 @@ def name_hash(s):
 
 def read_geo(data):
     """DS2 PC layout (worked out on the Slasher, differs from MeltyTool's DS3 Geo.cs):
-    header 0x34 mesh count, 0x38 bone count, 0x50 mesh table (0x100 per mesh), 0x60 bone records
+    header 0x34 mesh count, 0x38 bone count, 0x50 mesh table (0xC0 per mesh), 0x60 bone records
     (name hash, rcb index), 0x68 vertex/uv/index buffer records (size, count, flags|stride, offset).
     Mesh entry: +0x04 flags (0xF0000 = influences per vertex, 0 = rigid), +0x0C material hash, +0x30 index count,
-    +0x38 vertex count, +0x40 base vertex (u16), +0x44 bone palette (u8 pairs: rcb index, geo bone),
+    +0x38 vertex count (u16), +0x40 base vertex (u16) = first vertex in the shared UV buffer and in the index values, +0x44 bone palette (u8 pairs: rcb index, geo bone),
     +0x84 vertex offset, +0x88 index offset. Skinned vertex 32 B: pos 3f, normal u32, tangent u32,
     4 palette slots u8, 4 weights u16. Rigid vertex 20 B (no skin; whole mesh on palette[0]).
     UVs: the stride-8 buffer record, 2 floats per vertex."""
@@ -76,17 +76,18 @@ def read_geo(data):
 
     meshes = []
     for m in range(mesh_count):
-        e = table_off + 0x100 * m
+        e = table_off + 0xC0 * m  # 0xC0 per mesh (single-mesh files pad the table to 0x100)
         flags, mtlb = u32(e + 4), u32(e + 0x0C)
         skinned = bool(flags & 0xF0000)  # influences per vertex (0 = rigid)
-        icount, vcount = u32(e + 0x30), u32(e + 0x38)
+        icount = u32(e + 0x30)
+        vcount = struct.unpack_from("<H", data, e + 0x38)[0]  # u16; the next u16 is the mesh's first vertex
         base = struct.unpack_from("<H", data, e + 0x40)[0]
         pal_off, v_off, i_off = u32(e + 0x44), u32(e + 0x84), u32(e + 0x88)
         palette = list(data[pal_off:pal_off + 2 * 256:2]) if pal_off else []
         stride = 32 if skinned else 20
         verts = []
         for k in range(vcount):
-            o = v_off + stride * (base + k)
+            o = v_off + stride * k  # v_off already points at this mesh's first vertex
             pos = struct.unpack_from("<3f", data, o)
             n, t = struct.unpack_from("<II", data, o + 12)
             if skinned:

@@ -1,10 +1,15 @@
-"""Copy entries out of Dead Space 2's BIGH archives (DS2DAT*.DAT), read-only on the game folder.
+r"""Copy entries out of Dead Space 2's BIGH archives (DS2DAT*.DAT), read-only on the game folder.
 
 Same layout Gibbed.Visceral's BigFile.cs reads: 'BIGH', total size (LE), count and header size (BE),
 then count x (offset, size, name hash) big-endian. Entries are stored raw, so a byte copy matches
 what BigViewer saves. Output goes to extracted/ (git-ignored); never commit it.
 
     python pipeline/ds2_big_extract.py <DS2 folder> DS2DAT6.DAT 0x258D62B5 [more hashes] [-o extracted/ds2]
+    python pipeline/ds2_big_extract.py <DS2 folder> any --name global_assets\global_assets\ds_assets\weapn_str\pulserifl.str
+
+An entry's hash is Gibbed's hash (h*65599+c, lowercase) of its path; the paths are in MeltyTool's
+cli/roms/dead_space_2/prereqs/ntsc/DS2DAT*.filelist (every name there matched its entry, 2026-10-06).
+With --name the archive argument may be "any": all DS2DAT*.DAT are searched.
 """
 import argparse, os, struct
 
@@ -24,24 +29,36 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("ds2_dir")
     ap.add_argument("archive")
-    ap.add_argument("hashes", nargs="+")
+    ap.add_argument("hashes", nargs="*")
+    ap.add_argument("--name", action="append", default=[], help="archive path(s) instead of hashes")
     ap.add_argument("-o", "--out", default="extracted/ds2")
     a = ap.parse_args()
-    path = os.path.join(a.ds2_dir, a.archive)
     want = {int(h, 16) for h in a.hashes}
+    for n in a.name:
+        h = 0
+        for c in n.lower():
+            h = (h * 65599 + ord(c)) & 0xFFFFFFFF
+        want.add(h)
+    archives = sorted(x for x in os.listdir(a.ds2_dir) if x.upper().endswith(".DAT")) if a.archive == "any" else [a.archive]
     os.makedirs(a.out, exist_ok=True)
+    for archive in archives:
+        want = extract(os.path.join(a.ds2_dir, archive), archive, want, a.out)
+    for h in want:
+        print(f"not found: 0x{h:08X}")
+
+
+def extract(path, archive, want, out):
     with open(path, "rb") as f:
         for off, size, name in entries(path):
             if name not in want:
                 continue
             f.seek(off)
-            dst = os.path.join(a.out, f"{os.path.splitext(a.archive)[0]}_{name:08X}.str")
+            dst = os.path.join(out, f"{os.path.splitext(archive)[0]}_{name:08X}.str")
             with open(dst, "wb") as o:
                 o.write(f.read(size))
             want.discard(name)
             print(f"{dst} ({size} bytes)")
-    for h in want:
-        print(f"not found: 0x{h:08X}")
+    return want
 
 
 if __name__ == "__main__":

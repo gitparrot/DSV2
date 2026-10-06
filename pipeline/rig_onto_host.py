@@ -51,6 +51,14 @@ host_arm = max((o for o in host_objs if o.type == "ARMATURE"), key=lambda a: len
 if host_arm.matrix_world != Matrix.Identity(4):
     sys.exit("[rig] host armature has an object transform; expected identity")
 
+# Dead Space joint names are hashed case-insensitively and some exist in two spellings (l_elbow / L_elbow), so match
+# the map's names to the source armature's case-insensitively.
+src_name = {b.name.lower(): b.name for b in src_arm.data.bones}
+bmap = {src_name.get(k.lower(), k): v for k, v in bmap.items()}
+for r in bmap.values():
+    for k in ("tail_to", "parent"):
+        if k in r:
+            r[k] = src_name.get(r[k].lower(), r[k])
 missing = [b.name for b in src_arm.data.bones if b.name not in bmap]
 if missing:
     sys.exit(f"[rig] map incomplete: no row for {missing}")

@@ -4,6 +4,8 @@
         [--skip <regex>]   (leave pieces out, e.g. the Divider's tongue, modelled 5 m long and straight)
         [--attach <other skeleton>:<joint>]   (also take meshes bound to another skeleton in the stream, rigidly
                                                 on one joint: Isaac's helmet has its own skeleton -> m_neck2 = head)
+        [--keep-bones <regex>]   (only triangles mainly weighted to matching joints, e.g. first-person arms)
+        [--scale <factor>]   (uniform; Isaac is stored at ~55% size, use 1.8)
         [--rcb-from <other unpacked dir>]   (skeleton from another stream: Isaac's suits use global_assets' "player")
         [--names-from <other unpacked dir>]   (joint names from another stream's .hkx with the same skeleton;
                                                the Enhanced Slasher's own .hkx has no Deform_ names for it)
@@ -29,6 +31,11 @@ with_caps = "--caps" in argv
 names_from = [os.path.abspath(argv[i + 1]) for i, a in enumerate(argv) if a == "--names-from"]
 skip = [argv[i + 1] for i, a in enumerate(argv) if a == "--skip"]  # regexes of mesh pieces to leave out
 attach = dict(argv[i + 1].split(":", 1) for i, a in enumerate(argv) if a == "--attach")  # skeleton -> joint
+# Isaac is stored at ~55% of his size (1.03 m); --scale 1.8 gives him his real ~1.85 m and shoulder width
+size = float(argv[argv.index("--scale") + 1]) if "--scale" in argv else 1.0
+# keep only triangles mainly weighted to joints matching this regex (Isaac's first-person arms: his upper arms are
+# part of the merged chest mesh, and the chest must not sit in front of the camera)
+keep_bones = re.compile(argv[argv.index("--keep-bones") + 1], re.I) if "--keep-bones" in argv else None
 model = os.path.basename(os.path.normpath(src))
 
 Y_UP_TO_Z_UP = Matrix(((1, 0, 0, 0), (0, 0, -1, 0), (0, 1, 0, 0), (0, 0, 0, 1)))
@@ -85,7 +92,9 @@ bpy.ops.object.mode_set(mode="EDIT")
 world = []
 for i, inv in enumerate(skel["inv_bind"]):
     m = Matrix(inv).transposed().inverted()  # stored row-major (System.Numerics) inverse bind
-    world.append(Y_UP_TO_Z_UP @ m)
+    m = Y_UP_TO_Z_UP @ m
+    m.translation = m.translation * size
+    world.append(m)
 ebones = []
 for i, n in enumerate(names):
     eb = arm_data.edit_bones.new(n)
@@ -180,11 +189,18 @@ for key, g in list(geos.items()) + list(attached.items()):
     for m in g["meshes"]:
         name = m["name"].replace("Shape", "")
         me = bpy.data.meshes.new(name)
-        verts = [(Y_UP_TO_Z_UP @ Vector(v["pos"])) for v in m["verts"]]
+        verts = [(Y_UP_TO_Z_UP @ Vector(v["pos"])) * size for v in m["verts"]]
         if rigid_on:  # modelled around its own skeleton's origin, which the game puts on that joint
             offset = world[names.index(rigid_on)].to_translation()
             verts = [v + offset for v in verts]
-        me.from_pydata([tuple(v) for v in verts], [], m["faces"])
+        faces = m["faces"]
+        if keep_bones:
+            kept = [bool(v["influences"]) and bool(keep_bones.search(names[max(v["influences"], key=lambda iw: iw[1])[0]]))
+                    for v in m["verts"]]
+            faces = [f for f in faces if all(kept[i] for i in f)]
+            if not faces:
+                continue
+        me.from_pydata([tuple(v) for v in verts], [], faces)
         uv = me.uv_layers.new(name="UVMap")
         for poly in me.polygons:
             for li in poly.loop_indices:

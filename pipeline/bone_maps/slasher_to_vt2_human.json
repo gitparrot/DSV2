@@ -1,0 +1,72 @@
+{
+ "about": "How pipeline/rig_onto_host.py fits the Dead Space 2 Slasher (skeleton zombieb) onto a Vermintide 2 human enemy skeleton (j_* joints, e.g. chaos_fanatic) and moves its skin weights there. Every DS2 bone needs a row.",
+ "fields": {
+  "weights": "host joint that gets this bone's vertex weights; must be in the host's pipeline/bones/<breed>.txt (only those are linked in game)",
+  "head": "fit: move the bone's head to this host joint (or [joint_a, joint_b, t] = point between them)",
+  "stretch": "fit: stretch the bone so its tail reaches this host joint (changes the bone's length)",
+  "aim": "fit: turn the bone towards this host joint without changing its length",
+  "tail_to": "before fitting, point the bone's tail at this DS2 bone's head, so stretch/aim use the limb's real direction",
+  "rigid": "true: keep this part's own size even if its parent is stretched (heads, hands, blades)"
+ },
+ "rotate_z_degrees": 180,
+ "bones": {
+  "Deform_m_root": {"weights": "j_hips"},
+  "m_camera": {"weights": "j_hips"},
+  "Deform_m_navel": {"weights": "j_hips", "head": "j_hips"},
+  "Deform_m_hip": {"weights": "j_hips", "head": "j_hips"},
+  "Deform_m_tail1": {"weights": "j_hips", "rigid": true},
+
+  "Deform_m_waist": {"weights": "j_spine_scale", "head": "j_hips", "stretch": "j_spine1", "tail_to": "Deform_m_spine"},
+  "Deform_m_spine": {"weights": "j_spine_scale", "head": "j_spine1", "stretch": ["j_spine1", "j_neck", 0.5], "tail_to": "Deform_m_spine2"},
+  "Deform_m_spine2": {"weights": "j_spine1", "head": ["j_spine1", "j_neck", 0.5], "stretch": ["j_spine1", "j_neck", 0.8], "tail_to": "Deform_m_sternum"},
+  "Deform_m_sternum": {"weights": "j_spine1", "head": ["j_spine1", "j_neck", 0.8], "stretch": "j_neck", "tail_to": "Deform_m_neck0"},
+
+  "Deform_m_neck0": {"weights": "j_neck", "head": "j_neck", "stretch": ["j_neck", "j_head", 0.5], "tail_to": "Deform_m_neck1"},
+  "Deform_m_neck1": {"weights": "j_neck_scale", "head": ["j_neck", "j_head", 0.5], "stretch": "j_head", "tail_to": "Deform_m_neck3"},
+  "Deform_m_neck3": {"weights": "j_head", "head": "j_head", "rigid": true},
+  "Deform_m_head": {"weights": "j_head"},
+  "Deform_l_eye": {"weights": "j_lefteye"},
+  "Deform_r_eye": {"weights": "j_righteye"},
+  "Deform_m_mouth": {"weights": "j_jaw_anim"},
+
+  "Deform_l_clav": {"weights": "j_leftshoulder", "head": "j_leftshoulder", "stretch": "j_leftarm", "tail_to": "Deform_l_upSpike"},
+  "Deform_l_upSpike": {"weights": "j_leftarm", "head": "j_leftarm", "stretch": "j_leftforearm", "tail_to": "Deform_l_midSpike"},
+  "Deform_l_upSpikeRotXZ": {"weights": "j_leftarm"},
+  "Deform_l_upSpikeTwistY1": {"weights": "j_leftarm_scale"},
+  "Deform_l_upSpikeTwistY2": {"weights": "j_leftarm_roll"},
+  "Deform_l_upSpikeTwistY3": {"weights": "j_leftarm_roll"},
+  "Deform_l_midSpike": {"weights": "j_leftforearm", "head": "j_leftforearm", "aim": "j_lefthand", "tail_to": "Deform_l_loSpike", "rigid": true},
+  "Deform_l_loSpike": {"weights": "j_lefthand", "rigid": true},
+
+  "Deform_r_clav": {"weights": "j_rightshoulder", "head": "j_rightshoulder", "stretch": "j_rightarm", "tail_to": "Deform_r_upSpike"},
+  "Deform_r_upSpike": {"weights": "j_rightarm", "head": "j_rightarm", "stretch": "j_rightforearm", "tail_to": "Deform_r_midSpike"},
+  "Deform_r_upSpikeRotXZ": {"weights": "j_rightarm"},
+  "Deform_r_upSpikeTwistY1": {"weights": "j_rightarm_scale"},
+  "Deform_r_upSpikeTwistY2": {"weights": "j_rightarm_roll"},
+  "Deform_r_upSpikeTwistY3": {"weights": "j_rightarm_roll"},
+  "Deform_r_midSpike": {"weights": "j_rightforearm", "head": "j_rightforearm", "aim": "j_righthand", "tail_to": "Deform_r_loSpike", "rigid": true},
+  "Deform_r_loSpike": {"weights": "j_righthand", "rigid": true},
+
+  "Deform_l_upArm": {"weights": "j_spine_scale", "rigid": true},
+  "Deform_l_loArm": {"weights": "j_spine_scale"},
+  "Deform_l_loArm1": {"weights": "j_spine_scale"},
+  "Deform_l_hand": {"weights": "j_spine_scale"},
+  "Deform_r_upArm": {"weights": "j_spine_scale", "rigid": true},
+  "Deform_r_loArm": {"weights": "j_spine_scale"},
+  "Deform_r_loArm1": {"weights": "j_spine_scale"},
+  "Deform_r_hand": {"weights": "j_spine_scale"},
+
+  "Deform_l_upLeg": {"weights": "j_leftupleg", "head": "j_leftupleg", "stretch": "j_leftleg", "tail_to": "Deform_l_loLeg"},
+  "Deform_l_loLeg": {"weights": "j_leftleg", "head": "j_leftleg", "stretch": "j_leftfoot", "tail_to": "Deform_l_ankle"},
+  "Deform_l_xtrKnee": {"weights": "j_leftleg"},
+  "Deform_l_xtrAnkle": {"weights": "j_leftleg_roll"},
+  "Deform_l_xtrToe": {"weights": "j_leftleg_roll"},
+  "Deform_l_ankle": {"weights": "j_leftfoot", "head": "j_leftfoot", "aim": "j_lefttoebase", "tail_to": "Deform_l_rfToe", "rigid": true},
+  "Deform_l_rfToe": {"weights": "j_lefttoebase"},
+
+  "Deform_r_upLeg": {"weights": "j_rightupleg", "head": "j_rightupleg", "stretch": "j_rightleg", "tail_to": "Deform_r_loLeg"},
+  "Deform_r_loLeg": {"weights": "j_rightleg", "head": "j_rightleg", "stretch": "j_rightfoot", "tail_to": "Deform_r_ankle"},
+  "Deform_r_ankle": {"weights": "j_rightfoot", "head": "j_rightfoot", "aim": "j_righttoebase", "tail_to": "Deform_r_lfToe", "rigid": true},
+  "Deform_r_lfToe": {"weights": "j_righttoebase"}
+ }
+}

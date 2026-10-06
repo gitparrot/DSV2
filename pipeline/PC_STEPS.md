@@ -49,8 +49,14 @@ BBT is loaded.) The script writes the skin-weighted joints, one per line, and th
 The saved `.blend` is the skeleton to rig onto in step 5.
 
 ## 5. Rig and import (fills `enemy_skins.rigged`)
-In Blender, fit the Necromorph over the enemy's skeleton, name the bones to match, weight it and export
-an FBX. Import it in the SDK as `units/dsv2/<id>/<id>` with its materials. Set `rigged: true` in the sheet.
+The skin must use the enemy's skeleton unchanged (the mod pins bone to bone). Import the enemy once more with BBT
+**without** "Fix bone rotation", then fit the Necromorph onto it with a bone map (done for the Slasher):
+```
+blender -b -P pipeline/vt2_bones.py -- extracted/vt2/units/beings/enemies/chaos_fanatic/chr_chaos_fanatic.unit <scratch>.txt --no-fix --blend extracted/vt2/chaos_fanatic_nofix.blend
+blender -b --factory-startup -P pipeline/rig_onto_host.py -- --source ds2_export/slasher.blend --host extracted/vt2/chaos_fanatic_nofix.blend --map pipeline/bone_maps/slasher_to_vt2_human.json --bones pipeline/bones/chaos_fanatic.txt --out ds2_export/slasher_fanatic.fbx
+```
+Other human-skeleton enemies (Marauder, Gor?) should reuse the same map with their own bones file. Then import
+the FBX in the SDK as `units/dsv2/<id>/<id>` with its materials and set `rigged: true` in the sheet.
 
 ## 6. Generate, build, play (fills `tested_in_game`)
 ```

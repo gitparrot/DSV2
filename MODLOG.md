@@ -67,10 +67,32 @@ plus the full 168-node scene graph as comments.
   tree: `root_point > j_hips > j_spine > j_spine_scale > j_spine1 > ...`, 1 root. The script uses both imports.
 - `generate.py` now emits the Fanatic's 99 links (`dsv2_skins.lua`).
 
+**Step 5, Slasher on the Fanatic: rigged in Blender; SDK import still to do.** `ds2_export/slasher_fanatic.fbx`
+(+ `.blend`, git-ignored) = the Slasher's mesh on the Fanatic's own 168-node skeleton.
+- Why the host skeleton is used unchanged: `dsv2.lua` pins each skin bone to the host bone of the same name with
+  `World.link_unit`, so the skin's rest pose must equal the host's. Any axis or unit conversion the SDK applies to
+  both mesh and bind pose cancels out under that link.
+- The Fanatic must be imported **without** BBT's "Fix bone rotation": with it the bone positions match but the rest
+  orientations differ (checked on `j_head`, `j_leftarm`). `extracted/vt2/chaos_fanatic_nofix.blend` is the rig base.
+- `j_spine` is not in the linked list but `j_spine_scale` is (the Fanatic's skin uses the `_scale` nodes), so torso
+  weights go there. Every weight target is checked against `pipeline/bones/chaos_fanatic.txt`.
+- `pipeline/rig_onto_host.py` + `pipeline/bone_maps/slasher_to_vt2_human.json`: turn the Slasher 180°, move/stretch its
+  spine, neck, legs and upper arms onto the Fanatic joints, aim (not stretch) the blades and feet, bake that pose
+  into the mesh, merge each DS2 bone's weights into its mapped joint, bind to the Fanatic armature (named
+  `Armature` so the FBX has no extra root). Design choices: the blades are the Fanatic's arms (upper blade =
+  `j_leftarm`, blade = `j_leftforearm`, tip = `j_lefthand`), so they swing with its weapon attacks; the Slasher's
+  small chest arms ride on `j_spine_scale`.
+- Checked: fitted joints land 0.0 cm off; 0 unweighted vertices; the FBX re-imports with the host's 168 bones at
+  0.00 mm / 0.000° rest difference, 28 weight groups all linked, textures embedded; a posed test (arm raised, leg
+  bent, head turned) moves the Slasher with the Fanatic's own mesh.
+- Look: the 0.6 m blades hang forward-down along the Fanatic's forearms and cross over the head when the elbow bends
+  fully. The head stands upright (the Slasher normally hunches), so its hanging split jaw juts forward. The
+  backwards-twisted left foot is in the original model.
+
 ## Open questions (block the first in-game build)
-1. Rigging (step 5): the Slasher is 2.15 m in a T-pose facing -Y; the Fanatic is 1.9 m in an A-pose facing +Y.
-   Fit, rename and reweight onto the 99 Fanatic joints. The DXT5_NM normal map is wired in `slasher.blend` but does
-   not survive the FBX export (base colour and specular do).
+1. Step 5 in the SDK: import `slasher_fanatic.fbx` as `units/dsv2/slasher_fanatic/slasher_fanatic` with materials,
+   then set `enemy_skins.rigged`. The DXT5_NM normal map is wired in `slasher.blend` but does not survive the FBX
+   export (base colour and specular do).
 2. `tests/test_mod.lua` was not re-run on the PC (no Lua 5.1 here); the change is generated data only.
 3. Other Necromorphs: `char_str\npc` names seen in DAT6-9, mapping still to confirm: `div` (Divider?), `exp`
    (Exploder?), `inf` (Infector?), `leap` (Leaper?), `pack_boy`/`pack_girl` (The Pack), `stalker`, `tripod`, `pois`,

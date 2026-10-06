@@ -168,7 +168,7 @@ bpy.ops.object.select_all(action="DESELECT")
 for o in [host_arm, *src_meshes]:
     o.select_set(True)
 bpy.ops.export_scene.fbx(filepath=out_fbx, use_selection=True, add_leaf_bones=False, bake_anim=False,
-                         use_armature_deform_only=False, path_mode="COPY", embed_textures=True,
+                         use_armature_deform_only=False, path_mode="STRIP", embed_textures=False,
                          mesh_smooth_type="FACE")
 sidecar = {"armature": host_arm.name, "meshes": sorted(o.name for o in src_meshes),
            "materials": sorted({m.name for o in src_meshes for m in o.data.materials if m}),

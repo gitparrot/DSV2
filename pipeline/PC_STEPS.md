@@ -20,9 +20,18 @@ Necromorph Tide pipeline". It can then run the tools below itself. Each step lis
   is the command-line alternative.
 
 ## 2. Create the Workshop item (private)
-`vmb create dsv2`, then copy this repo's `mod/dsv2/` over the created folder. Keep `visibility = "private"` in
-`itemV2.cfg`. Subscribe to the item it opens, then run `vmb build dsv2`. With no skins built yet, the mod
-loads and does nothing. That's the first check: its options appear in the game's mod menu.
+Done (2026-10-06): item **3814476856**, private, `published_id` is in `mod/dsv2/itemV2.cfg`. vmb 1.8.4 lives in
+`D:\Mods	oolsmb` (its `.vmbrc` fallbacks point at `D:/SteamLibrary`; mods folder `D:\Mods	oolsmb\mods`).
+Note: vmb's uploader auto-answers "Y" to the Vermintide 2 EULA modding-terms prompt.
+To build after any change (local only, nothing is uploaded):
+```
+cp -r mod/dsv2/. D:/Mods/tools/vmb/mods/dsv2/        (after make_sdk_unit.py has put the git-ignored .fbx/.png in place)
+D:\Mods	oolsmbmb.exe build dsv2
+```
+`vmb build` compiles with the SDK and copies the bundles to `bundleV2` and to the subscribed item's Workshop folder
+(`D:\SteamLibrary\steamapps\workshop\contentŪ500814476856`), which is what the launcher loads.
+**Never run `vmb upload`**: that would put the Dead Space 2 assets on Steam, even if the item is private.
+First in-game check: the mod's options appear in the game's mod menu.
 
 ## 3. Get the Necromorphs out of Dead Space 2 (fills `source_models.ds2_archive`, `extracted`)
 Proven on the Slasher (2026-10-05, see MODLOG). Noesis can't read DS2 meshes, so the route is Gibbed's

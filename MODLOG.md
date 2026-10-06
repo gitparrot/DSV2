@@ -107,8 +107,17 @@ plus the full 168-node scene graph as comments.
   fully. The head stands upright (the Slasher normally hunches), so its hanging split jaw juts forward. The
   backwards-twisted left foot is in the original model.
 
+**Step 2, Workshop item: done (2026-10-06).** Private item 3814476856 ("Necromorph Tide (private)"), created by
+`vmb create dsv2 -v private` with only vmb's placeholder content; owner approved the vmb install and the item.
+vmb's uploader auto-accepted the Vermintide 2 EULA modding terms (it sends "Y"); the owner was told.
+`published_id` is now in `mod/dsv2/itemV2.cfg`. `vmb build dsv2` succeeded (40 s) and copied the bundles, including
+the Slasher's (`f31b22786dfa9b41`), into the local Workshop folder only. Both the item and VMF (1369573612) are
+subscribed. vmb prints a harmless `"fd" argument` error from its Steam-library lookup, then uses the `.vmbrc` paths.
+The skin FBX no longer embeds textures: the SDK's FBX importer was extracting them as stray .dds files into the mod.
+
 ## Open questions (block the first in-game build)
-1. Step 2 (private Workshop item via vmb) and step 6 (build, play, `tested_in_game`) are next for the Slasher.
+1. Step 6 for the Slasher: launch Vermintide 2, enable VMF first and Necromorph Tide below it in the launcher's mod
+   list, play a Chaos mission in the Modded Realm, check the `[dsv2]` console lines, then set `tested_in_game`.
 2. `tests/test_mod.lua` was not re-run on the PC (no Lua 5.1 here); the change is generated data only.
 3. Other Necromorphs: `char_str\npc` names seen in DAT6-9, mapping still to confirm: `div` (Divider?), `exp`
    (Exploder?), `inf` (Infector?), `leap` (Leaper?), `pack_boy`/`pack_girl` (The Pack), `stalker`, `tripod`, `pois`,

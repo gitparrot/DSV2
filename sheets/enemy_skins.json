@@ -36,7 +36,7 @@
    "gibs": "original Vermintide gibs; the skin's limb is hidden with the host bone (verify)",
    "setting": "faction_chaos",
    "rigged": true,
-   "tested_in_game": false
+   "tested_in_game": true
   },
   {
    "id": "slasher_marauder",

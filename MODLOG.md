@@ -133,9 +133,14 @@ The skin FBX no longer embeds textures: the SDK's FBX importer was extracting th
 - Compiler gotcha: the SDK compiler fails ("Cannot open file for output ... GetLastError 3") when its source path is
   too long; build from short paths (`D:/Mods/tools/vmb/...` is fine).
 
+**Second in-game test (2026-10-06): Slashers seen in game.** The owner saw Necromorphs in place of the Fanatics.
+Log: `slasher_fanatic: first skin ... 99/99 bones linked, 99 rest scales restored`, no mod errors. Other rows still log
+"no bone list yet" as expected. `enemy_skins.slasher_fanatic.tested_in_game` = true. Slasher on the Fanatic is
+done end to end; the remaining rows repeat steps 3-5 (Marauder and Gor can reuse the human bone map).
+
 ## Open questions (block the first in-game build)
-1. Step 6 for the Slasher: launch Vermintide 2, enable VMF first and Necromorph Tide below it in the launcher's mod
-   list, play a Chaos mission in the Modded Realm, check the `[dsv2]` console lines, then set `tested_in_game`.
+1. Look and feel still to judge: blade arms vs the Fanatic's swings, the forward-jutting jaw, the torch flame that
+   still shows (it's the hidden torch item's effect), and dismemberment.
 2. `tests/test_mod.lua` was not re-run on the PC (no Lua 5.1 here); the change is generated data only.
 3. Other Necromorphs: `char_str\npc` names seen in DAT6-9, mapping still to confirm: `div` (Divider?), `exp`
    (Exploder?), `inf` (Infector?), `leap` (Leaper?), `pack_boy`/`pack_girl` (The Pack), `stalker`, `tripod`, `pois`,

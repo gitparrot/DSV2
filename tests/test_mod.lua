@@ -20,7 +20,7 @@ local next_id = 0
 local function new_unit(name, nodes, data)
 	next_id = next_id + 1
 
-	local unit = { id = next_id, name = name, nodes = nodes or {}, data = data or {}, visible = true, alive = true, links = {} }
+	local unit = { id = next_id, name = name, nodes = nodes or {}, data = data or {}, visible = true, alive = true, links = {}, scales = {} }
 
 	units[#units + 1] = unit
 
@@ -35,16 +35,26 @@ Unit = {
 	node = function (unit, name) return unit.nodes[name] end,
 	world_position = function () return "pos" end,
 	world_rotation = function () return "rot" end,
-	set_local_scale = function (unit, node, scale) unit.scale = scale end,
+	set_local_scale = function (unit, node, scale) unit.scales[node] = scale end,
+	-- skins come out of the SDK with x100 on the skeleton's rest pose (see dsv2.lua); hosts are unscaled
+	world_pose = function (unit, node) return { x = { unit.rest_scale or 1, 0, 0 } } end,
 }
+Matrix4x4 = { x = function (m) return m.x end }
 World = {
-	spawn_unit = function (world, name) return new_unit(name, { Hips = 1, Spine = 2 }) end,
+	spawn_unit = function (world, name)
+		local skin = new_unit(name, { Hips = 1, Spine = 2 })
+
+		skin.rest_scale = 100
+
+		return skin
+	end,
 	link_unit = function (world, child, child_node, parent, parent_node)
 		child.links[#child.links + 1] = { child_node, parent, parent_node }
 	end,
 	destroy_unit = function (world, unit) unit.alive = false end,
 }
-Vector3 = function (x, y, z) return { x, y, z } end
+Vector3 = setmetatable({ length = function (v) return math.sqrt(v[1] ^ 2 + v[2] ^ 2 + v[3] ^ 2) end },
+	{ __call = function (_, x, y, z) return { x, y, z } end })
 Application = { can_get = function (kind, name) return kind == "unit" and name ~= "units/dsv2/missing/missing" end }
 
 local inventories = {}
@@ -70,7 +80,13 @@ BreedFreezer = { unfreeze_unit = function (self, unit) unit.visible = true end }
 -- Mod framework stubs ------------------------------------------------------------------------------------
 local settings = { faction_chaos = true, faction_skaven = false, marker_banner = true }
 local warnings = {}
+local infos = {}
+local commands = {}
+local echoes = {}
 local mod = {
+	info = function (self, fmt, ...) infos[#infos + 1] = string.format(fmt, ...) end,
+	echo = function (self, fmt, ...) echoes[#echoes + 1] = string.format(fmt, ...) end,
+	command = function (self, name, description, func) commands[name] = func end,
 	get = function (self, id) return settings[id] end,
 	warning = function (self, fmt, ...) warnings[#warnings + 1] = string.format(fmt, ...) end,
 	dofile = function (self, path)
@@ -137,7 +153,7 @@ mod.update(0.016)
 
 local function skin_on(host)
 	for _, u in ipairs(units) do
-		if u.links[1] and u.links[1][2] == host then
+		if u.links[1] and u.links[1][2] == host and u.name:find("^units/dsv2/") then
 			return u
 		end
 	end
@@ -146,9 +162,12 @@ end
 local skin = skin_on(fanatic)
 
 check(skin ~= nil and skin.name == "units/dsv2/slasher_fanatic/slasher_fanatic", "fanatic gets the Slasher skin")
-check(skin and #skin.links == 2, "skin linked on the two bones both skeletons share; missing bone skipped")
+check(skin and #skin.links == 3, "skin root linked, plus the two bones both skeletons share; missing bone skipped")
+check(skin and skin.links[1][1] == 0 and skin.links[1][3] == 0, "skin root follows the host root (culling)")
+check(skin and skin.scales[1] and skin.scales[1][1] == 100 and skin.scales[2][1] == 100, "x100 rest scale restored on linked bones")
+check(#infos == 2, "one info line per skin type the first time it is applied (" .. #infos .. ")")
 check(fanatic.visible == false and axe.visible == false, "fanatic and its weapon hidden")
-check(skin and skin.scale and skin.scale[1] == 1.2, "sheet scale applied")
+check(skin and skin.scales[0] and skin.scales[0][1] == 1.2, "sheet scale applied")
 check(skin_on(slave) == nil and slave.visible, "Skaven toggle off: slave rat untouched")
 check(skin_on(warrior) == nil and warrior.visible, "row without bones: warrior untouched")
 check(skin_on(troll) == nil and troll.visible, "skin unit missing from bundle: troll untouched")
@@ -159,8 +178,20 @@ check(#warnings == 3, "one warning each for no bones, missing unit, missing bone
 mod.update(0.016)
 check(#warnings == 3, "warnings are not repeated")
 
-BreedFreezer.unfreeze_unit(nil, fanatic, "chaos_fanatic")
+local freezer = { world = world }
+
+BreedFreezer.unfreeze_unit(freezer, fanatic, "chaos_fanatic")
 check(fanatic.visible == false, "re-hidden after the pool reuses it")
+
+local pooled = new_unit("chr_chaos_fanatic", { Hips = 10, Spine = 11 }, { breed = { name = "chaos_fanatic" } })
+
+BreedFreezer.unfreeze_unit(freezer, pooled, "chaos_fanatic")
+check(skin_on(pooled) ~= nil and pooled.visible == false, "pooled fanatic that never had a skin gets one when unfrozen")
+BreedFreezer.unfreeze_unit(freezer, clanrat, "skaven_clan_rat")
+check(skin_on(clanrat) == nil, "unfreezing a breed without a row does nothing")
+
+commands.dsv2_status()
+check(echoes[1] and echoes[1]:find("slasher_fanatic 2", 1, true), "/dsv2_status reports skins applied (" .. tostring(echoes[1]) .. ")")
 
 UnitSpawner.create_unit_extensions(nil, world, fanatic, "ai_unit")
 mod.update(0.016)

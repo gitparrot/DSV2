@@ -12,6 +12,7 @@ local skin_of = {} -- host unit -> our skin unit
 local world_of = {} -- host unit -> world it lives in
 local queued = {} -- spawned units waiting one frame, so their breed data is set
 local warned = {}
+local skinned_count = {} -- entry id -> skins applied this session (for /dsv2_status)
 
 local function entry_for(unit, unit_template_name)
 	local breed = Unit.get_data(unit, "breed")
@@ -47,6 +48,10 @@ local function hide_host(unit, entry)
 	end
 end
 
+local function rest_scale(unit, node)
+	return Vector3.length(Matrix4x4.x(Unit.world_pose(unit, node)))
+end
+
 local function remove_skin(unit)
 	local skin = skin_of[unit]
 
@@ -76,6 +81,8 @@ local function apply_skin(world, unit, entry)
 	end
 
 	local skin = World.spawn_unit(world, entry.skin_unit, Unit.world_position(unit, 0), Unit.world_rotation(unit, 0))
+	local pairs_to_link = {}
+	local links_root = false
 
 	for _, link in ipairs(entry.links) do
 		local host_node, skin_node = link[1], link[2]
@@ -89,10 +96,39 @@ local function apply_skin(world, unit, entry)
 		end
 
 		if host_node and skin_node then
-			World.link_unit(world, skin, skin_node, unit, host_node)
+			-- Read the rest scale before linking: linking replaces the bone's local pose with identity.
+			pairs_to_link[#pairs_to_link + 1] = { host_node, skin_node, rest_scale(skin, skin_node) }
+			links_root = links_root or skin_node == 0
 		else
 			warn_once(entry.id .. tostring(link[1]), "%s: bone %s missing on host or skin", entry.id, tostring(link[1]))
 		end
+	end
+
+	-- The skin's root follows the host's root, so the engine culls the skin where the enemy is, not at its spawn point.
+	if not links_root then
+		World.link_unit(world, skin, 0, unit, 0)
+	end
+
+	local scale_fixed = 0
+
+	for _, p in ipairs(pairs_to_link) do
+		local host_node, skin_node, scale = p[1], p[2], p[3]
+
+		World.link_unit(world, skin, skin_node, unit, host_node)
+
+		-- The SDK's FBX import stores the vertices at 1/100 and puts x100 on the skeleton's rest pose. Linking drops that
+		-- x100, which would draw the skin at 1/100 size, so put it back on each linked bone.
+		if math.abs(scale - 1) > 0.001 then
+			Unit.set_local_scale(skin, skin_node, Vector3(scale, scale, scale))
+			scale_fixed = scale_fixed + 1
+		end
+	end
+
+	skinned_count[entry.id] = (skinned_count[entry.id] or 0) + 1
+
+	if skinned_count[entry.id] == 1 then
+		mod:info("%s: first skin on %s, %d/%d bones linked, %d rest scales restored", entry.id, entry.skin_unit,
+			#pairs_to_link, #entry.links, scale_fixed)
 	end
 
 	if entry.scale ~= 1 then
@@ -115,11 +151,39 @@ mod:hook_safe(UnitSpawner, "create_unit_extensions", function (self, world, unit
 	}
 end)
 
--- Pooled enemies are made visible again when the game reuses them; keep the original model hidden.
+-- Pooled enemies come back through here, not through create_unit_extensions, and are made visible again.
+-- Keep the original model hidden, or give the skin to a pooled enemy that never had one.
 mod:hook_safe(BreedFreezer, "unfreeze_unit", function (self, unit, breed_name)
-	if skin_of[unit] then
-		hide_host(unit, SKINS.breeds[breed_name] or entry_for(unit))
+	local entry = SKINS.breeds[breed_name] or entry_for(unit)
+
+	if not entry then
+		return
 	end
+
+	if skin_of[unit] then
+		hide_host(unit, entry)
+	else
+		apply_skin(self.world, unit, entry)
+	end
+end)
+
+mod:command("dsv2_status", "Necromorph Tide: how many enemies wear a skin right now", function ()
+	local alive = 0
+
+	for _, skin in pairs(skin_of) do
+		if Unit.alive(skin) then
+			alive = alive + 1
+		end
+	end
+
+	local parts = {}
+
+	for id, n in pairs(skinned_count) do
+		parts[#parts + 1] = string.format("%s %d", id, n)
+	end
+
+	table.sort(parts)
+	mod:echo("dsv2: %d skins alive; applied this session: %s", alive, #parts > 0 and table.concat(parts, ", ") or "none")
 end)
 
 mod.update = function ()

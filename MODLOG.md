@@ -115,6 +115,24 @@ the Slasher's (`f31b22786dfa9b41`), into the local Workshop folder only. Both th
 subscribed. vmb prints a harmless `"fd" argument` error from its Steam-library lookup, then uses the `.vmbrc` paths.
 The skin FBX no longer embeds textures: the SDK's FBX importer was extracting them as stray .dds files into the mod.
 
+**First in-game test (2026-10-06): Fanatics invisible, most Fanatics unchanged. Diagnosed and fixed in dsv2.lua.**
+- Log: mod and VMF load fine; only the Fanatic reached the skin path (other rows log "no bone list yet" as designed).
+- Invisible: the SDK's FBX import keeps the vertices at 1/100 and puts x100 on the skeleton's rest pose (every node
+  of the compiled skin has world scale 100; its inverse bind matrices have scale 1; the Fanatic's own unit has none).
+  `World.link_unit` replaces a linked bone's local pose with identity (the game's inventory code saves and restores
+  it around linking), so the x100 vanished and the Slasher was drawn about 2 cm tall. Seven FBX export variants
+  (unit/axis/global scale options) all compile to the same x100-relative-to-data setup, so the fix is at runtime:
+  read each skin bone's rest scale (`Unit.world_pose` + `Matrix4x4.x`) before linking, `Unit.set_local_scale` it back
+  after. Also: the skin's root is now linked to the host's root, so culling follows the enemy, not its spawn point.
+- Most Fanatics unchanged: pooled enemies come back through `BreedFreezer.unfreeze_unit` without passing
+  `create_unit_extensions` (vt2src breed_freezer.lua:450). The unfreeze hook now applies the skin when there is none.
+- The torch flame still shows: it is the Fanatic's inventory item's effect; hiding the item unit does not stop it.
+- New: `/dsv2_status` in chat reports skins alive and applied; the first skin of each type logs an info line with
+  bones linked and rest scales restored. `tests/test_mod.lua` covers these but was not run (no Lua on this PC); the
+  SDK build compiled the Lua without errors.
+- Compiler gotcha: the SDK compiler fails ("Cannot open file for output ... GetLastError 3") when its source path is
+  too long; build from short paths (`D:/Mods/tools/vmb/...` is fine).
+
 ## Open questions (block the first in-game build)
 1. Step 6 for the Slasher: launch Vermintide 2, enable VMF first and Necromorph Tide below it in the launcher's mod
    list, play a Chaos mission in the Modded Realm, check the `[dsv2]` console lines, then set `tested_in_game`.

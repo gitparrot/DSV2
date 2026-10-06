@@ -1,0 +1,424 @@
+# chr_third_person_mesh.unit via Bitsquid Blender Tools 0.8.4, fix_bones=True
+# Bones to link (one per line): the 161 joints the enemy's own skin is weighted to,
+# depth-first. Rig the Necromorph onto these.
+j_hips
+j_can_dynamic
+j_hammer_dynamic
+j_leftupleg
+j_left_skirt_01_dynamic
+j_leftleg
+j_leftfoot
+j_lefttoebase
+j_rightupleg
+j_right_skirt_01_dynamic
+j_rightleg
+j_rightfoot
+j_righttoebase
+j_roll_dynamic
+j_spine
+j_spine1
+j_spine2
+j_chain_01_dynamic
+j_chain_02_dynamic
+j_chain_cog_bottom
+j_chain_cog_top
+j_chain_links_01
+j_chain_links_02
+j_chain_links_03
+j_chain_links_04
+j_chain_links_05
+j_chain_links_06
+j_chain_links_07
+j_chain_links_08
+j_chain_links_09
+j_chain_links_10
+j_chain_links_11
+j_chain_links_12
+j_chain_links_13
+j_chain_links_14
+j_cog
+j_hatch_dynamic
+j_indicator_l
+j_indicator_r
+j_leftshoulder
+j_leftarm
+j_leftarm_roll
+j_leftforearm
+j_leftforearm_roll
+j_lefthand
+j_lefthandthumb1
+j_lefthandthumb2
+j_lefthandthumb3
+j_leftinhandindex
+j_lefthandindex1
+j_lefthandindex2
+j_lefthandindex3
+j_leftinhandmiddle
+j_lefthandmiddle1
+j_lefthandmiddle2
+j_lefthandmiddle3
+j_leftinhandpinky
+j_lefthandpinky1
+j_lefthandpinky2
+j_lefthandpinky3
+j_leftinhandring
+j_lefthandring1
+j_lefthandring2
+j_lefthandring3
+j_piston_01_l_forearm
+j_piston_02_l_forearm
+j_piston_01_l_arm
+j_leftsteel_armor
+j_piston_02_l_armor
+j_neck
+j_head
+j_beard_left_side_01_dynamic
+j_beard_left_side_02_dynamic
+j_beard_right_side_01_dynamic
+j_beard_right_side_02_dynamic
+j_jaw_anim
+j_beard_center_01_dynamic
+j_beard_center_02_dynamic
+j_beard_center_03_dynamic
+j_beard_center_04_dynamic
+j_beard_left_inner_01_dynamic
+j_beard_left_inner_02_dynamic
+j_beard_right_inner_01_dynamic
+j_beard_right_inner_02_dynamic
+j_beard_left_outer_01_dynamic
+j_beard_left_outer_02_dynamic
+j_beard_left_outer_03_dynamic
+j_beard_right_outer_01_dynamic
+j_beard_right_outer_02_dynamic
+j_beard_right_outer_03_dynamic
+j_chin_amim
+j_leftcrease_02_anim
+j_lowerlipcenter_anim
+j_lowerlipleft1_anim
+j_lowerlipleft2_anim
+j_lowerlipright1_anim
+j_lowerlipright2_anim
+j_rightcrease_02_anim
+j_tongue_01
+j_tongue_02
+j_tongue_03
+j_tongue_04
+j_leftcheek_01_anim
+j_leftcheek_02_anim
+j_leftcheek_03_anim
+j_leftcrease_01_anim
+j_lefteyebrowinner_anim
+j_lefteyebrowmid_anim
+j_lefteyebrowouter_anim
+j_lefteyelidbottom
+j_lefteyelidtop
+j_leftsnarl_01_anim
+j_rightcheek_01_anim
+j_rightcheek_02_anim
+j_rightcheek_03_anim
+j_rightcrease_01_anim
+j_righteyebrowinner_anim
+j_righteyebrowmid_anim
+j_righteyebrowouter_anim
+j_righteyelidbottom
+j_righteyelidtop
+j_rightsnarl_01_anim
+j_upperlipcenter_anim
+j_beard_left_nose_01_dynamic
+j_beard_left_nose_02_dynamic
+j_beard_left_nose_03_dynamic
+j_beard_left_nose_04_dynamic
+j_beard_right_nose_01_dynamic
+j_beard_right_nose_02_dynamic
+j_beard_right_nose_03_dynamic
+j_beard_right_nose_04_dynamic
+j_upperlipleft1_anim
+j_upperlipleft2_anim
+j_upperlipright1_anim
+j_upperlipright2_anim
+j_rightshoulder
+j_rightarm
+j_rightarm_roll
+j_rightforearm
+j_rightforearm_roll
+j_righthand
+j_righthandthumb1
+j_righthandthumb2
+j_righthandthumb3
+j_rightinhandindex
+j_righthandindex1
+j_righthandindex2
+j_righthandindex3
+j_rightinhandmiddle
+j_righthandmiddle1
+j_righthandmiddle2
+j_righthandmiddle3
+j_rightinhandpinky
+j_righthandpinky1
+j_righthandpinky2
+j_righthandpinky3
+j_rightinhandring
+j_righthandring1
+j_righthandring2
+j_righthandring3
+j_wrench_dynamic
+#
+# Full scene graph (257 nodes, 104 joints; 'Guess joints' import):
+# name<TAB>parent<TAB>joint|node[,skinned]
+# root_point	-	joint
+# j_hips	root_point	node,skinned
+# j_can_parent	j_hips	joint
+# j_can_dynamic	j_can_parent	joint,skinned
+# j_hammer_parent	j_hips	joint
+# j_hammer_dynamic	j_hammer_parent	joint,skinned
+# j_leftupleg	j_hips	node,skinned
+# j_left_skirt_01_parent	j_leftupleg	joint
+# j_left_skirt_01_dynamic	j_left_skirt_01_parent	joint,skinned
+# j_leftleg	j_leftupleg	node,skinned
+# j_leftfoot	j_leftleg	node,skinned
+# j_lefttoebase	j_leftfoot	node,skinned
+# j_lefttoebase_end	j_lefttoebase	node
+# j_leftleg_roll	j_leftleg	node
+# j_rightupleg	j_hips	node,skinned
+# j_right_skirt_01_parent	j_rightupleg	joint
+# j_right_skirt_01_dynamic	j_right_skirt_01_parent	joint,skinned
+# j_rightleg	j_rightupleg	node,skinned
+# j_rightfoot	j_rightleg	node,skinned
+# j_righttoebase	j_rightfoot	node,skinned
+# j_righttoebase_end	j_righttoebase	node
+# j_rightleg_roll	j_rightleg	node
+# j_roll_parent	j_hips	joint
+# j_roll_dynamic	j_roll_parent	joint,skinned
+# j_spine	j_hips	node,skinned
+# j_spine1	j_spine	node,skinned
+# j_beard_dynamic_collision	j_spine1	joint
+# j_spine2	j_spine1	node,skinned
+# j_chain_01_parent	j_spine2	joint
+# j_chain_01_dynamic	j_chain_01_parent	joint,skinned
+# j_chain_02_parent	j_chain_01_dynamic	joint
+# j_chain_02_dynamic	j_chain_02_parent	joint,skinned
+# j_chain_cog_bottom	j_spine2	joint,skinned
+# j_chain_cog_top	j_spine2	joint,skinned
+# j_chain_links_01	j_spine2	joint,skinned
+# j_chain_links_02	j_spine2	joint,skinned
+# j_chain_links_03	j_spine2	joint,skinned
+# j_chain_links_04	j_spine2	joint,skinned
+# j_chain_links_05	j_spine2	joint,skinned
+# j_chain_links_06	j_spine2	joint,skinned
+# j_chain_links_07	j_spine2	joint,skinned
+# j_chain_links_08	j_spine2	joint,skinned
+# j_chain_links_09	j_spine2	joint,skinned
+# j_chain_links_10	j_spine2	joint,skinned
+# j_chain_links_11	j_spine2	joint,skinned
+# j_chain_links_12	j_spine2	joint,skinned
+# j_chain_links_13	j_spine2	joint,skinned
+# j_chain_links_14	j_spine2	joint,skinned
+# j_cog	j_spine2	joint,skinned
+# j_hatch_parent	j_spine2	joint
+# j_hatch_dynamic	j_hatch_parent	joint,skinned
+# j_indicator_l	j_spine2	joint,skinned
+# j_indicator_r	j_spine2	joint,skinned
+# j_leftshoulder	j_spine2	node,skinned
+# j_leftarm	j_leftshoulder	node,skinned
+# j_leftarm_roll	j_leftarm	node,skinned
+# j_leftforearm	j_leftarm	node,skinned
+# j_leftforearm_roll	j_leftforearm	node,skinned
+# j_lefthand	j_leftforearm	node,skinned
+# j_lefthandthumb1	j_lefthand	node,skinned
+# j_lefthandthumb2	j_lefthandthumb1	node,skinned
+# j_lefthandthumb3	j_lefthandthumb2	node,skinned
+# j_lefthandthumb4	j_lefthandthumb3	node
+# j_leftinhandindex	j_lefthand	node,skinned
+# j_lefthandindex1	j_leftinhandindex	node,skinned
+# j_lefthandindex2	j_lefthandindex1	node,skinned
+# j_lefthandindex3	j_lefthandindex2	node,skinned
+# j_lefthandindex4	j_lefthandindex3	node
+# j_leftinhandmiddle	j_lefthand	node,skinned
+# j_lefthandmiddle1	j_leftinhandmiddle	node,skinned
+# j_lefthandmiddle2	j_lefthandmiddle1	node,skinned
+# j_lefthandmiddle3	j_lefthandmiddle2	node,skinned
+# j_lefthandmiddle4	j_lefthandmiddle3	node
+# j_leftinhandpinky	j_lefthand	node,skinned
+# j_lefthandpinky1	j_leftinhandpinky	node,skinned
+# j_lefthandpinky2	j_lefthandpinky1	node,skinned
+# j_lefthandpinky3	j_lefthandpinky2	node,skinned
+# j_lefthandpinky4	j_lefthandpinky3	node
+# j_leftinhandring	j_lefthand	node,skinned
+# j_lefthandring1	j_leftinhandring	node,skinned
+# j_lefthandring2	j_lefthandring1	node,skinned
+# j_lefthandring3	j_lefthandring2	node,skinned
+# j_lefthandring4	j_lefthandring3	node
+# j_piston_01_l_pole	j_leftforearm	joint
+# j_piston_01_l_forearm	j_piston_01_l_pole	joint,skinned
+# j_piston_01_l_forearm_end	j_piston_01_l_forearm	joint
+# j_piston_01_l_forearm_effector	j_piston_01_l_pole	joint
+# j_piston_02_l_forearm	j_piston_01_l_pole	joint,skinned
+# j_piston_02_l_forearm_end	j_piston_02_l_forearm	joint
+# j_piston_02_l_forearm_effector	j_piston_01_l_pole	joint
+# j_piston_01_l_arm	j_leftarm	joint,skinned
+# j_piston_01_l_arm_end	j_piston_01_l_arm	joint
+# j_piston_01_l_arm_effector	j_leftarm	joint
+# j_leftsteel_armor	j_leftshoulder	node,skinned
+# j_piston_02_l_armor	j_leftsteel_armor	joint,skinned
+# j_piston_02_l_armor_end	j_piston_02_l_armor	joint
+# j_piston_02_l_armor_effector	j_leftsteel_armor	joint
+# j_neck	j_spine2	node,skinned
+# j_head	j_neck	node,skinned
+# j_beard_left_side_01_parent	j_head	joint
+# j_beard_left_side_01_dynamic	j_beard_left_side_01_parent	joint,skinned
+# j_beard_left_side_02_parent	j_beard_left_side_01_dynamic	joint
+# j_beard_left_side_02_dynamic	j_beard_left_side_02_parent	joint,skinned
+# j_beard_right_side_01_parent	j_head	joint
+# j_beard_right_side_01_dynamic	j_beard_right_side_01_parent	joint,skinned
+# j_beard_right_side_02_parent	j_beard_right_side_01_dynamic	joint
+# j_beard_right_side_02_dynamic	j_beard_right_side_02_parent	joint,skinned
+# j_head_end	j_head	node
+# j_jaw_ref	j_head	node
+# j_jaw_anim	j_jaw_ref	node,skinned
+# j_beard_center_01_parent	j_jaw_anim	joint
+# j_beard_center_01_dynamic	j_beard_center_01_parent	joint,skinned
+# j_beard_center_02_parent	j_beard_center_01_dynamic	joint
+# j_beard_center_02_dynamic	j_beard_center_02_parent	joint,skinned
+# j_beard_center_03_parent	j_beard_center_02_dynamic	joint
+# j_beard_center_03_dynamic	j_beard_center_03_parent	joint,skinned
+# j_beard_center_04_parent	j_beard_center_03_dynamic	joint
+# j_beard_center_04_dynamic	j_beard_center_04_parent	joint,skinned
+# j_beard_left_inner_01_parent	j_beard_center_02_dynamic	joint
+# j_beard_left_inner_01_dynamic	j_beard_left_inner_01_parent	joint,skinned
+# j_beard_left_inner_02_parent	j_beard_left_inner_01_dynamic	joint
+# j_beard_left_inner_02_dynamic	j_beard_left_inner_02_parent	joint,skinned
+# j_beard_right_inner_01_parent	j_beard_center_02_dynamic	joint
+# j_beard_right_inner_01_dynamic	j_beard_right_inner_01_parent	joint,skinned
+# j_beard_right_inner_02_parent	j_beard_right_inner_01_dynamic	joint
+# j_beard_right_inner_02_dynamic	j_beard_right_inner_02_parent	joint,skinned
+# j_beard_left_outer_01_parent	j_beard_center_01_dynamic	joint
+# j_beard_left_outer_01_dynamic	j_beard_left_outer_01_parent	joint,skinned
+# j_beard_left_outer_02_parent	j_beard_left_outer_01_dynamic	joint
+# j_beard_left_outer_02_dynamic	j_beard_left_outer_02_parent	joint,skinned
+# j_beard_left_outer_03_parent	j_beard_left_outer_02_dynamic	joint
+# j_beard_left_outer_03_dynamic	j_beard_left_outer_03_parent	joint,skinned
+# j_beard_right_outer_01_parent	j_beard_center_01_dynamic	joint
+# j_beard_right_outer_01_dynamic	j_beard_right_outer_01_parent	joint,skinned
+# j_beard_right_outer_02_parent	j_beard_right_outer_01_dynamic	joint
+# j_beard_right_outer_02_dynamic	j_beard_right_outer_02_parent	joint,skinned
+# j_beard_right_outer_03_parent	j_beard_right_outer_02_dynamic	joint
+# j_beard_right_outer_03_dynamic	j_beard_right_outer_03_parent	joint,skinned
+# j_chin_ref	j_jaw_anim	node
+# j_chin_amim	j_chin_ref	node,skinned
+# j_leftcrease_02_ref	j_jaw_anim	node
+# j_leftcrease_02_anim	j_leftcrease_02_ref	node,skinned
+# j_lowerlipcenter_ref	j_jaw_anim	node
+# j_lowerlipcenter_anim	j_lowerlipcenter_ref	node,skinned
+# j_lowerlipleft1_ref	j_jaw_anim	node
+# j_lowerlipleft1_anim	j_lowerlipleft1_ref	node,skinned
+# j_lowerlipleft2_ref	j_jaw_anim	node
+# j_lowerlipleft2_anim	j_lowerlipleft2_ref	node,skinned
+# j_lowerlipright1_ref	j_jaw_anim	node
+# j_lowerlipright1_anim	j_lowerlipright1_ref	node,skinned
+# j_lowerlipright2_ref	j_jaw_anim	node
+# j_lowerlipright2_anim	j_lowerlipright2_ref	node,skinned
+# j_rightcrease_02_ref	j_jaw_anim	node
+# j_rightcrease_02_anim	j_rightcrease_02_ref	node,skinned
+# j_tongue_01	j_jaw_anim	node,skinned
+# j_tongue_02	j_tongue_01	node,skinned
+# j_tongue_03	j_tongue_02	node,skinned
+# j_tongue_04	j_tongue_03	node,skinned
+# j_leftcheek_01_ref	j_head	node
+# j_leftcheek_01_anim	j_leftcheek_01_ref	node,skinned
+# j_leftcheek_02_ref	j_head	node
+# j_leftcheek_02_anim	j_leftcheek_02_ref	node,skinned
+# j_leftcheek_03_ref	j_head	node
+# j_leftcheek_03_anim	j_leftcheek_03_ref	node,skinned
+# j_leftcrease_01_ref	j_head	node
+# j_leftcrease_01_anim	j_leftcrease_01_ref	node,skinned
+# j_lefteye	j_head	node
+# j_lefteyebrowinner_ref	j_head	node
+# j_lefteyebrowinner_anim	j_lefteyebrowinner_ref	node,skinned
+# j_lefteyebrowmid_ref	j_head	node
+# j_lefteyebrowmid_anim	j_lefteyebrowmid_ref	node,skinned
+# j_lefteyebrowouter_ref	j_head	node
+# j_lefteyebrowouter_anim	j_lefteyebrowouter_ref	node,skinned
+# j_lefteyelid_ref	j_head	node
+# j_lefteyelidbottom	j_lefteyelid_ref	node,skinned
+# j_lefteyelidtop	j_lefteyelid_ref	node,skinned
+# j_leftsnarl_01_ref	j_head	node
+# j_leftsnarl_01_anim	j_leftsnarl_01_ref	node,skinned
+# j_rightcheek_01_ref	j_head	node
+# j_rightcheek_01_anim	j_rightcheek_01_ref	node,skinned
+# j_rightcheek_02_ref	j_head	node
+# j_rightcheek_02_anim	j_rightcheek_02_ref	node,skinned
+# j_rightcheek_03_ref	j_head	node
+# j_rightcheek_03_anim	j_rightcheek_03_ref	node,skinned
+# j_rightcrease_01_ref	j_head	node
+# j_rightcrease_01_anim	j_rightcrease_01_ref	node,skinned
+# j_righteye	j_head	node
+# j_righteyebrowinner_ref	j_head	node
+# j_righteyebrowinner_anim	j_righteyebrowinner_ref	node,skinned
+# j_righteyebrowmid_ref	j_head	node
+# j_righteyebrowmid_anim	j_righteyebrowmid_ref	node,skinned
+# j_righteyebrowouter_ref	j_head	node
+# j_righteyebrowouter_anim	j_righteyebrowouter_ref	node,skinned
+# j_righteyelid_ref	j_head	node
+# j_righteyelidbottom	j_righteyelid_ref	node,skinned
+# j_righteyelidtop	j_righteyelid_ref	node,skinned
+# j_rightsnarl_01_ref	j_head	node
+# j_rightsnarl_01_anim	j_rightsnarl_01_ref	node,skinned
+# j_upperlipcenter_ref	j_head	node
+# j_upperlipcenter_anim	j_upperlipcenter_ref	node,skinned
+# j_beard_left_nose_01_parent	j_upperlipcenter_anim	joint
+# j_beard_left_nose_01_dynamic	j_beard_left_nose_01_parent	joint,skinned
+# j_beard_left_nose_02_parent	j_beard_left_nose_01_dynamic	joint
+# j_beard_left_nose_02_dynamic	j_beard_left_nose_02_parent	joint,skinned
+# j_beard_left_nose_03_parent	j_beard_left_nose_02_dynamic	joint
+# j_beard_left_nose_03_dynamic	j_beard_left_nose_03_parent	joint,skinned
+# j_beard_left_nose_04_parent	j_beard_left_nose_03_dynamic	joint
+# j_beard_left_nose_04_dynamic	j_beard_left_nose_04_parent	joint,skinned
+# j_beard_right_nose_01_parent	j_upperlipcenter_anim	joint
+# j_beard_right_nose_01_dynamic	j_beard_right_nose_01_parent	joint,skinned
+# j_beard_right_nose_02_parent	j_beard_right_nose_01_dynamic	joint
+# j_beard_right_nose_02_dynamic	j_beard_right_nose_02_parent	joint,skinned
+# j_beard_right_nose_03_parent	j_beard_right_nose_02_dynamic	joint
+# j_beard_right_nose_03_dynamic	j_beard_right_nose_03_parent	joint,skinned
+# j_beard_right_nose_04_parent	j_beard_right_nose_03_dynamic	joint
+# j_beard_right_nose_04_dynamic	j_beard_right_nose_04_parent	joint,skinned
+# j_upperlipleft1_ref	j_head	node
+# j_upperlipleft1_anim	j_upperlipleft1_ref	node,skinned
+# j_upperlipleft2_ref	j_head	node
+# j_upperlipleft2_anim	j_upperlipleft2_ref	node,skinned
+# j_upperlipright1_ref	j_head	node
+# j_upperlipright1_anim	j_upperlipright1_ref	node,skinned
+# j_upperlipright2_ref	j_head	node
+# j_upperlipright2_anim	j_upperlipright2_ref	node,skinned
+# j_rightshoulder	j_spine2	node,skinned
+# j_rightarm	j_rightshoulder	node,skinned
+# j_rightarm_roll	j_rightarm	node,skinned
+# j_rightforearm	j_rightarm	node,skinned
+# j_rightforearm_roll	j_rightforearm	node,skinned
+# j_righthand	j_rightforearm	node,skinned
+# j_righthandthumb1	j_righthand	node,skinned
+# j_righthandthumb2	j_righthandthumb1	node,skinned
+# j_righthandthumb3	j_righthandthumb2	node,skinned
+# j_righthandthumb4	j_righthandthumb3	node
+# j_rightinhandindex	j_righthand	node,skinned
+# j_righthandindex1	j_rightinhandindex	node,skinned
+# j_righthandindex2	j_righthandindex1	node,skinned
+# j_righthandindex3	j_righthandindex2	node,skinned
+# j_righthandindex4	j_righthandindex3	node
+# j_rightinhandmiddle	j_righthand	node,skinned
+# j_righthandmiddle1	j_rightinhandmiddle	node,skinned
+# j_righthandmiddle2	j_righthandmiddle1	node,skinned
+# j_righthandmiddle3	j_righthandmiddle2	node,skinned
+# j_righthandmiddle4	j_righthandmiddle3	node
+# j_rightinhandpinky	j_righthand	node,skinned
+# j_righthandpinky1	j_rightinhandpinky	node,skinned
+# j_righthandpinky2	j_righthandpinky1	node,skinned
+# j_righthandpinky3	j_righthandpinky2	node,skinned
+# j_righthandpinky4	j_righthandpinky3	node
+# j_rightinhandring	j_righthand	node,skinned
+# j_righthandring1	j_rightinhandring	node,skinned
+# j_righthandring2	j_righthandring1	node,skinned
+# j_righthandring3	j_righthandring2	node,skinned
+# j_righthandring4	j_righthandring3	node
+# j_rightsteer_armor	j_rightshoulder	node
+# j_wrench_parent	j_spine2	joint
+# j_wrench_dynamic	j_wrench_parent	joint,skinned

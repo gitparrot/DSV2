@@ -1,0 +1,152 @@
+# chr_first_person_mesh.unit via Bitsquid Blender Tools 0.8.4, fix_bones=True
+# Bones to link (one per line): the 50 joints the enemy's own skin is weighted to,
+# depth-first. Rig the Necromorph onto these.
+j_leftshoulder
+j_leftarm
+j_leftforearm
+j_lefthand
+j_leftinhandindex
+j_lefthandindex1
+j_lefthandindex2
+j_lefthandindex3
+j_leftinhandmiddle
+j_lefthandmiddle1
+j_lefthandmiddle2
+j_lefthandmiddle3
+j_leftinhandpinky
+j_lefthandpinky1
+j_lefthandpinky2
+j_lefthandpinky3
+j_leftinhandring
+j_lefthandring1
+j_lefthandring2
+j_lefthandring3
+j_leftinhandthumb
+j_lefthandthumb1
+j_lefthandthumb2
+j_piston_l_forearm
+j_piston_l_arm
+j_rightshoulder
+j_rightarm
+j_rightarmroll
+j_rightforearm
+j_rightforearmroll
+j_righthand
+j_rightinhandindex
+j_righthandindex1
+j_righthandindex2
+j_righthandindex3
+j_rightinhandmiddle
+j_righthandmiddle1
+j_righthandmiddle2
+j_righthandmiddle3
+j_rightinhandpinky
+j_righthandpinky1
+j_righthandpinky2
+j_righthandpinky3
+j_rightinhandring
+j_righthandring1
+j_righthandring2
+j_righthandring3
+j_rightinhandthumb
+j_righthandthumb1
+j_righthandthumb2
+#
+# Full scene graph (96 nodes, 9 joints; 'Guess joints' import):
+# name<TAB>parent<TAB>joint|node[,skinned]
+# j_spine2	-	node
+# j_leftshoulder	j_spine2	node,skinned
+# j_leftarm	j_leftshoulder	node,skinned
+# j_leftarmroll	j_leftarm	node
+# j_leftforearm	j_leftarm	joint,skinned
+# j_leftforearmroll	j_leftforearm	node
+# j_lefthand	j_leftforearm	node,skinned
+# j_leftinhandindex	j_lefthand	node,skinned
+# j_lefthandindex1	j_leftinhandindex	node,skinned
+# j_lefthandindex2	j_lefthandindex1	node,skinned
+# j_lefthandindex3	j_lefthandindex2	node,skinned
+# j_lefthandindex4	j_lefthandindex3	node
+# j_leftinhandmiddle	j_lefthand	node,skinned
+# j_lefthandmiddle1	j_leftinhandmiddle	node,skinned
+# j_lefthandmiddle2	j_lefthandmiddle1	node,skinned
+# j_lefthandmiddle3	j_lefthandmiddle2	node,skinned
+# j_lefthandmiddle4	j_lefthandmiddle3	node
+# j_leftinhandpinky	j_lefthand	node,skinned
+# j_lefthandpinky1	j_leftinhandpinky	node,skinned
+# j_lefthandpinky2	j_lefthandpinky1	node,skinned
+# j_lefthandpinky3	j_lefthandpinky2	node,skinned
+# j_lefthandpinky4	j_lefthandpinky3	node
+# j_leftinhandring	j_lefthand	node,skinned
+# j_lefthandring1	j_leftinhandring	node,skinned
+# j_lefthandring2	j_lefthandring1	node,skinned
+# j_lefthandring3	j_lefthandring2	node,skinned
+# j_lefthandring4	j_lefthandring3	node
+# j_leftinhandthumb	j_lefthand	node,skinned
+# j_lefthandthumb1	j_leftinhandthumb	node,skinned
+# j_lefthandthumb2	j_lefthandthumb1	node,skinned
+# j_lefthandthumb3	j_lefthandthumb2	node
+# j_leftweaponattach	j_lefthand	node
+# j_leftweaponcomponent1	j_leftweaponattach	node
+# j_leftweaponcomponent10	j_leftweaponattach	node
+# j_leftweaponcomponent11	j_leftweaponattach	node
+# j_leftweaponcomponent12	j_leftweaponattach	node
+# j_leftweaponcomponent13	j_leftweaponattach	node
+# j_leftweaponcomponent14	j_leftweaponattach	node
+# j_leftweaponcomponent15	j_leftweaponattach	node
+# j_leftweaponcomponent2	j_leftweaponattach	node
+# j_leftweaponcomponent3	j_leftweaponattach	node
+# j_leftweaponcomponent4	j_leftweaponattach	node
+# j_leftweaponcomponent5	j_leftweaponattach	node
+# j_leftweaponcomponent6	j_leftweaponattach	node
+# j_leftweaponcomponent7	j_leftweaponattach	node
+# j_leftweaponcomponent8	j_leftweaponattach	node
+# j_leftweaponcomponent9	j_leftweaponattach	node
+# j_piston_l_forearm_effector	j_leftforearm	joint
+# j_piston_l_forearm_parent	j_leftforearm	joint
+# j_piston_l_forearm	j_piston_l_forearm_parent	joint,skinned
+# j_piston_l_forearm_end	j_piston_l_forearm	joint
+# j_piston_l_arm_effector	j_leftarm	joint
+# j_piston_l_arm_parent	j_leftarm	joint
+# j_piston_l_arm	j_piston_l_arm_parent	joint,skinned
+# j_piston_l_arm_end	j_piston_l_arm	joint
+# j_rightshoulder	j_spine2	node,skinned
+# j_rightarm	j_rightshoulder	node,skinned
+# j_rightarmroll	j_rightarm	node,skinned
+# j_rightforearm	j_rightarm	node,skinned
+# j_rightforearmroll	j_rightforearm	node,skinned
+# j_righthand	j_rightforearm	node,skinned
+# j_rightinhandindex	j_righthand	node,skinned
+# j_righthandindex1	j_rightinhandindex	node,skinned
+# j_righthandindex2	j_righthandindex1	node,skinned
+# j_righthandindex3	j_righthandindex2	node,skinned
+# j_righthandindex4	j_righthandindex3	node
+# j_rightinhandmiddle	j_righthand	node,skinned
+# j_righthandmiddle1	j_rightinhandmiddle	node,skinned
+# j_righthandmiddle2	j_righthandmiddle1	node,skinned
+# j_righthandmiddle3	j_righthandmiddle2	node,skinned
+# j_righthandmiddle4	j_righthandmiddle3	node
+# j_rightinhandpinky	j_righthand	node,skinned
+# j_righthandpinky1	j_rightinhandpinky	node,skinned
+# j_righthandpinky2	j_righthandpinky1	node,skinned
+# j_righthandpinky3	j_righthandpinky2	node,skinned
+# j_righthandpinky4	j_righthandpinky3	node
+# j_rightinhandring	j_righthand	node,skinned
+# j_righthandring1	j_rightinhandring	node,skinned
+# j_righthandring2	j_righthandring1	node,skinned
+# j_righthandring3	j_righthandring2	node,skinned
+# j_righthandring4	j_righthandring3	node
+# j_rightinhandthumb	j_righthand	node,skinned
+# j_righthandthumb1	j_rightinhandthumb	node,skinned
+# j_righthandthumb2	j_righthandthumb1	node,skinned
+# j_righthandthumb3	j_righthandthumb2	node
+# j_rightweaponattach	j_righthand	node
+# j_rightweaponcomponent1	j_rightweaponattach	node
+# j_rightweaponcomponent10	j_rightweaponattach	node
+# j_rightweaponcomponent2	j_rightweaponattach	node
+# j_rightweaponcomponent3	j_rightweaponattach	node
+# j_rightweaponcomponent4	j_rightweaponattach	node
+# j_rightweaponcomponent5	j_rightweaponattach	node
+# j_rightweaponcomponent6	j_rightweaponattach	node
+# j_rightweaponcomponent7	j_rightweaponattach	node
+# j_rightweaponcomponent8	j_rightweaponattach	node
+# j_rightweaponcomponent9	j_rightweaponattach	node

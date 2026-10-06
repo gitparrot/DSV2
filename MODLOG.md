@@ -175,6 +175,22 @@ slasher_marauder_shield, enhanced_stormvermin_shield/commander; generate.py list
 - Warrior shoulders are armour (not skinned), so shoulder weights go to j_spine1. Under an extreme test pose the
   long arm curls around the Warrior's elbow; normal swings to be judged in game.
 
+**Isaac on Bardin's Outcast Engineer + Pulse Rifle for the crank gun (owner's request, 2026-10-06): IN PROGRESS.**
+Owner's picks: Engineering suit (uniminer), Pulse Rifle.
+- Done: `ds2_export/isaac_engineering.fbx` = full Engineering RIG with helmet, textured, on the 132-joint "player"
+  skeleton (`--rcb-from extracted/ds2/global_assets`, `--attach playerMinerHelmet:m_neck2`, `--skip 'face|hair|eye|lash'`).
+  Isaac is stored ~1.03 m tall. Spine = bone_06/11/16, head = m_neck2. Pulse Rifle stream unpacked
+  (`extracted/ds2/pulserifle`, own skeleton pulse_rifle). Bardin units extracted and imported:
+  3p `dwarf_ranger_engineer/third_person_base/chr_third_person_mesh` (bones `dr_engineer_3p.txt`, 161 skinned),
+  1p `.../first_person_base/chr_first_person_mesh` (`dr_engineer_1p.txt`, 50 skinned), crank gun
+  `wpn_dw_rotary_gun_01_t1` (+ `_3p`, 11 joints, j_root/j_barrels...; import with materials off).
+- Hook points (vt2src): 1p mesh in `PlayerUnitFirstPerson.init` (player_unit_first_person.lua:49-52), 3p mesh in
+  `PlayerUnitCosmeticExtension` (player_unit_cosmetic_extension.lua:191), gun linked via AttachmentUtils.link with
+  `AttachmentNodeLinking.rotary_gun` (attachment_node_linking_cog.lua:179).
+- Next: sheet `player_skins` (sheets first) + generate/preflight support; bone map Isaac -> Bardin 3p (dwarf
+  proportions) and 1p arms; pulse rifle as a rigid skin on the gun's j_root (1p and 3p); make_sdk_unit support for
+  several materials per unit (Isaac has upper/lower body, neck, helmet sets); dsv2.lua hooks above; build and test.
+
 ## Open questions (block the first in-game build)
 1. Look and feel still to judge: blade arms vs the Fanatic's swings, the forward-jutting jaw, the torch flame that
    still shows (it's the hidden torch item's effect), and dismemberment.

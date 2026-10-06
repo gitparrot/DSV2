@@ -13,7 +13,7 @@ Material: core standard_base (skinned by default) with base colour = _c (sRGB), 
 (DXT5_NM: X in alpha, Y in green, Z rebuilt by decode_normal; plain RGB normal maps per the formats.json that
 ds2_tg4.py writes), roughness = 1 - _sp.r.
 """
-import argparse, json, os, shutil, uuid
+import argparse, difflib, json, os, shutil, uuid
 
 UV, DF, NM, SP, DEC, INV, OUT = (str(uuid.uuid5(uuid.NAMESPACE_URL, f"dsv2/{n}")) for n in
                                  ("uv", "df", "nm", "sp", "decode", "invert", "out"))
@@ -92,38 +92,60 @@ def texture(res_path, fmt, srgb):
                                       "streamable": False}}})
 
 
-def unit(meshes, materials, mat_res):
+def unit(meshes, mat_res_of):
     rend = {m: {"always_keep": False, "culling": "bounding_volume", "generate_uv_unwrap": False, "occluder": False,
                 "shadow_caster": True, "surface_queries": False, "viewport_visible": True} for m in meshes}
-    return top({"materials": {m: mat_res for m in materials}, "renderables": rend})
+    return top({"materials": dict(mat_res_of), "renderables": rend})
+
+
+def find_png(tex_dir, texture_set, suffixes):
+    """<set>_<suffix>.png, trying suffixes in order; else the closest file name (Isaac's helmet colour map is spelt
+    "playermnerhelmet_c"; the Pulse Rifle's material is "pulserifle" for files named "pulse_rifle_*")."""
+    for sfx in suffixes:
+        p = os.path.join(tex_dir, f"{texture_set}_{sfx}.png")
+        if os.path.exists(p):
+            return p
+    pngs = [f[:-4] for f in os.listdir(tex_dir) if f.endswith(".png")]
+    for sfx in suffixes:
+        close = difflib.get_close_matches(f"{texture_set}_{sfx}", [f for f in pngs if f.endswith(f"_{sfx}")], 1, 0.8)
+        if close:
+            return os.path.join(tex_dir, close[0] + ".png")
+    raise FileNotFoundError(f"no {texture_set}_{'/'.join(suffixes)}.png in {tex_dir}")
 
 
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--id", required=True)
     ap.add_argument("--fbx", required=True)
-    ap.add_argument("--textures", required=True, help="path prefix of <prefix>_c/_n/_sp.png (ds2_tg4.py --png)")
+    ap.add_argument("--textures", required=True,
+                    help="folder of <set>_c/_n/_sp.png (ds2_tg4.py --png); a <folder>/<set> prefix also works")
     ap.add_argument("--mod", required=True, help="mod source root (folder with the .mod file)")
     a = ap.parse_args()
     info = json.load(open(os.path.splitext(a.fbx)[0] + ".json", encoding="utf-8"))
+    tex_dir = a.textures if os.path.isdir(a.textures) else os.path.dirname(a.textures)
     res_dir = f"units/dsv2/{a.id}"
     out = os.path.join(a.mod, *res_dir.split("/"))
     os.makedirs(out, exist_ok=True)
     w = lambda name, text: open(os.path.join(out, name), "w", encoding="utf-8", newline="\n").write(text)
-    w(f"{a.id}.unit", unit(info["meshes"], info["materials"], f"{res_dir}/{a.id}"))
-    fmt_path = os.path.join(os.path.dirname(a.textures), "formats.json")
+    fmt_path = os.path.join(tex_dir, "formats.json")
     formats = json.load(open(fmt_path)) if os.path.exists(fmt_path) else {}
-    normal_fmt = formats.get(os.path.basename(a.textures) + "_n", "DXT5_NM")
-    w(f"{a.id}.material", material(res_dir, a.id, normal_fmt))
-    for suffix, src, fmt, srgb in (("df", "c", "DXT1", True), ("nm", "n", "DXT5", False), ("sp", "sp", "DXT1", False)):
-        w(f"{a.id}_{suffix}.texture", texture(f"{res_dir}/{a.id}_{suffix}", fmt, srgb))
-        if src == "sp" and not os.path.exists(f"{a.textures}_sp.png"):
-            src = "s"  # the Pack names its specular map _s
-        if src == "c" and not os.path.exists(f"{a.textures}_c.png"):
-            src = "ca"  # the Divider's base colour is _ca
-        shutil.copyfile(f"{a.textures}_{src}.png", os.path.join(out, f"{a.id}_{suffix}.png"))
+    # one material per texture set (the FBX's material names are the sets); a single set keeps the plain <id> names
+    materials = info["materials"]
+    mat_res_of = {}
+    for texture_set in materials:
+        ident = a.id if len(materials) == 1 else f"{a.id}_{texture_set}"
+        mat_res_of[texture_set] = f"{res_dir}/{ident}"
+        normal_png = find_png(tex_dir, texture_set, ("n",))
+        normal_fmt = formats.get(os.path.basename(normal_png)[:-4], "DXT5_NM")
+        w(f"{ident}.material", material(res_dir, ident, normal_fmt))
+        for suffix, srcs, fmt, srgb in (("df", ("c", "ca"), "DXT1", True), ("nm", ("n",), "DXT5", False),
+                                         ("sp", ("sp", "s", "sc"), "DXT1", False)):
+            w(f"{ident}_{suffix}.texture", texture(f"{res_dir}/{ident}_{suffix}", fmt, srgb))
+            shutil.copyfile(find_png(tex_dir, texture_set, srcs), os.path.join(out, f"{ident}_{suffix}.png"))
+    w(f"{a.id}.unit", unit(info["meshes"], mat_res_of))
     shutil.copyfile(a.fbx, os.path.join(out, f"{a.id}.fbx"))
-    print(f"wrote {res_dir}/{a.id}.unit (+ material, 3 textures; fbx/png copied, git-ignored) in {a.mod}")
+    print(f"wrote {res_dir}/{a.id}.unit (+ {len(materials)} material(s), {3 * len(materials)} textures; "
+          f"fbx/png copied, git-ignored) in {a.mod}")
 
 
 if __name__ == "__main__":

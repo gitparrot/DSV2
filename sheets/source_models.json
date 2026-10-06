@@ -152,7 +152,7 @@
    "role": "replaces the Outcast Engineer's crank gun",
    "ds2_archive": "DS2DAT9.DAT entry 0x6E97957D: global_assets\\global_assets\\ds_assets\\weapn_str\\pulserifl.str, skeleton pulse_rifle",
    "export_file": "ds2_export/pulse_rifle.fbx",
-   "extracted": false
+   "extracted": true
   }
  ]
 }

@@ -175,21 +175,26 @@ slasher_marauder_shield, enhanced_stormvermin_shield/commander; generate.py list
 - Warrior shoulders are armour (not skinned), so shoulder weights go to j_spine1. Under an extreme test pose the
   long arm curls around the Warrior's elbow; normal swings to be judged in game.
 
-**Isaac on Bardin's Outcast Engineer + Pulse Rifle for the crank gun (owner's request, 2026-10-06): IN PROGRESS.**
-Owner's picks: Engineering suit (uniminer), Pulse Rifle.
-- Done: `ds2_export/isaac_engineering.fbx` = full Engineering RIG with helmet, textured, on the 132-joint "player"
-  skeleton (`--rcb-from extracted/ds2/global_assets`, `--attach playerMinerHelmet:m_neck2`, `--skip 'face|hair|eye|lash'`).
-  Isaac is stored ~1.03 m tall. Spine = bone_06/11/16, head = m_neck2. Pulse Rifle stream unpacked
-  (`extracted/ds2/pulserifle`, own skeleton pulse_rifle). Bardin units extracted and imported:
-  3p `dwarf_ranger_engineer/third_person_base/chr_third_person_mesh` (bones `dr_engineer_3p.txt`, 161 skinned),
-  1p `.../first_person_base/chr_first_person_mesh` (`dr_engineer_1p.txt`, 50 skinned), crank gun
-  `wpn_dw_rotary_gun_01_t1` (+ `_3p`, 11 joints, j_root/j_barrels...; import with materials off).
-- Hook points (vt2src): 1p mesh in `PlayerUnitFirstPerson.init` (player_unit_first_person.lua:49-52), 3p mesh in
-  `PlayerUnitCosmeticExtension` (player_unit_cosmetic_extension.lua:191), gun linked via AttachmentUtils.link with
-  `AttachmentNodeLinking.rotary_gun` (attachment_node_linking_cog.lua:179).
-- Next: sheet `player_skins` (sheets first) + generate/preflight support; bone map Isaac -> Bardin 3p (dwarf
-  proportions) and 1p arms; pulse rifle as a rigid skin on the gun's j_root (1p and 3p); make_sdk_unit support for
-  several materials per unit (Isaac has upper/lower body, neck, helmet sets); dsv2.lua hooks above; build and test.
+**Isaac on Bardin's Outcast Engineer + Pulse Rifle for the crank gun (owner's request, 2026-10-06): built, not yet
+seen in game.** Owner's picks: Engineering suit (uniminer), Pulse Rifle.
+- Design: sheets `player_skins` (isaac_engineer_3p / _1p on career dr_engineer) and `weapon_skins` (pulse_rifle_1p /
+  _3p on AttachmentNodeLinking.rotary_gun), setting `isaac_engineer`, four hooks in hooks.json; preflight and
+  generate.py know the new sheets (SKINS.careers / SKINS.weapons).
+- Mod (dsv2.lua): `mod:hook(Unit, "set_unit_visibility")` mirrors what the game asks for a skinned host onto its
+  skin and keeps the host hidden. Needed for heroes (your 3p body is hidden in first person, arms and weapons are
+  hidden in 3rd person / menus) and it also covers frozen enemies. Hooks: PlayerUnitCosmeticExtension.
+  _init_mesh_attachment (3p body, any player, by career), PlayerUnitFirstPerson.init (your arms; career looked up
+  like the game does), AttachmentUtils.link (weapons, identified by the linking table). Local units have no destroy
+  listener, so mod.update sweeps skins whose host is gone.
+- Isaac: global_assets' 132-joint "player" skeleton (67 names found; m_neck2 = head, "Twist" joints are limb
+  segments), multi-mesh .geo files, per-mesh materials (5 texture sets), helmet on its own skeleton attached to
+  m_neck2. Stored at ~55% size: built with `--scale 1.8`, his shoulder width then matches Bardin's and the fit
+  shortens his legs to dwarf height. 1p = arms only via `--keep-bones` (the upper arms live in the merged chest
+  mesh). Maps from `make_isaac_to_dwarf.py`.
+- Pulse Rifle: weapons are stored at full size (no scale). `place_prop.py` turns it 180 and offsets it so its front
+  grip sits on the crank gun's root (the left-hand attach) and the muzzles line up; linked by root only.
+- make_sdk_unit.py: one material + 3 textures per texture set; single-set units unchanged (byte-identical check).
+- Build: 10 skin units, bundle 24.7 MB, Lua compiled with the new hooks. tests/test_mod.lua extended (not run).
 
 ## Open questions (block the first in-game build)
 1. Look and feel still to judge: blade arms vs the Fanatic's swings, the forward-jutting jaw, the torch flame that

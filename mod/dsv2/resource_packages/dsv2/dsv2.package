@@ -9,4 +9,8 @@ unit = [
 	"units/dsv2/pack_slave/pack_slave"
 	"units/dsv2/enhanced_raider/enhanced_raider"
 	"units/dsv2/divider_warrior/divider_warrior"
+	"units/dsv2/isaac_engineer_3p/isaac_engineer_3p"
+	"units/dsv2/isaac_engineer_1p/isaac_engineer_1p"
+	"units/dsv2/pulse_rifle_1p/pulse_rifle_1p"
+	"units/dsv2/pulse_rifle_3p/pulse_rifle_3p"
 ]

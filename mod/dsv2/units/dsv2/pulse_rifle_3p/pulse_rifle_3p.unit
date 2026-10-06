@@ -1,0 +1,14 @@
+materials = {
+	pulserifle = "units/dsv2/pulse_rifle_3p/pulse_rifle_3p"
+}
+renderables = {
+	MergedMesh0000 = {
+		always_keep = false
+		culling = "bounding_volume"
+		generate_uv_unwrap = false
+		occluder = false
+		shadow_caster = true
+		surface_queries = false
+		viewport_visible = true
+	}
+}

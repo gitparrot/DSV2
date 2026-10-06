@@ -27,7 +27,7 @@
    "bones_file": "pipeline/bones/dr_engineer_3p.txt",
    "scale": 1.0,
    "setting": "isaac_engineer",
-   "rigged": false,
+   "rigged": true,
    "tested_in_game": false
   },
   {
@@ -41,7 +41,7 @@
    "bones_file": "pipeline/bones/dr_engineer_1p.txt",
    "scale": 1.0,
    "setting": "isaac_engineer",
-   "rigged": false,
+   "rigged": true,
    "tested_in_game": false
   }
  ]

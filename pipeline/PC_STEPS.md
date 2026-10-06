@@ -10,11 +10,13 @@ Necromorph Tide pipeline". It can then run the tools below itself. Each step lis
   and keep it first in the launcher's mod list.
 - **Vermintide Mod Builder (vmb)**: https://github.com/Vermintide-Mod-Framework/Vermintide-Mod-Builder/releases/latest
 - **Blender**: https://www.blender.org/download/
-- **Dead Space 2 extraction**: Gibbed's Visceral BigViewer (DS2 build) + its .STR unpacker, then Noesis
-  (https://richwhitehouse.com/index.php?content=inc_projects.php) to convert to FBX. See ResHax's
-  "Dead Space Legacy (2008-2013) 3D Model Tools" thread for current downloads.
-- **Vermintide 2 skeletons**: Bitsquid Blender Tools (BBT) by qasikfwn, which unpacks VT2 bundles and imports
-  units with their skeletons straight into Blender. VT2 Bundle Unpacker (gitlab.com/qasikfwn/vt2_bundle_unpacker)
+- **Dead Space 2 extraction**: Gibbed.Visceral (https://github.com/gibbed/Gibbed.Visceral, source only: build
+  `Gibbed.Visceral.sln` with Visual Studio's MSBuild) for `Gibbed.Visceral.StrUnpack.exe`, plus Blender and the
+  `pipeline/ds2_*.py` scripts. Noesis (https://richwhitehouse.com/index.php?content=inc_projects.php) was installed
+  but has no DS2 mesh reader; it's only an optional texture viewer.
+- **Vermintide 2 skeletons**: Bitsquid Blender Tools (BBT) by qasikfwn
+  (https://gitlab.com/qasikfwn/bitsquid-blender-tools/-/releases, needs Blender 5.2+), which unpacks VT2 bundles
+  and imports units with their skeletons straight into Blender. VT2 Bundle Unpacker (gitlab.com/qasikfwn/vt2_bundle_unpacker)
   is the command-line alternative.
 
 ## 2. Create the Workshop item (private)
@@ -23,17 +25,28 @@ Necromorph Tide pipeline". It can then run the tools below itself. Each step lis
 loads and does nothing. That's the first check: its options appear in the game's mod menu.
 
 ## 3. Get the Necromorphs out of Dead Space 2 (fills `source_models.ds2_archive`, `extracted`)
-Candidate route (community tutorials, not yet tried on this install): open the game's `.viv`/archive files
-with the DS2 BigViewer, find the character folder under `global_assets`, extract the Necromorph's `.str`,
-unpack it with the bundled .STR unpacker, then open the result in Noesis and export FBX to
-`ds2_export/<id>.fbx` (git-ignored). Record the archive path in `source_models.ds2_archive`.
-**Prove this with the Slasher first.**
+Proven on the Slasher (2026-10-05, see MODLOG). Noesis can't read DS2 meshes, so the route is Gibbed's
+StrUnpack plus this repo's scripts. Run from the repo root; `<DS2>` is the Dead Space 2 folder, tools in `D:\Mods\tools`:
+```
+python pipeline/ds2_big_extract.py "<DS2>" DS2DAT6.DAT 0x258D62B5 -o extracted/ds2
+Gibbed.Visceral.StrUnpack.exe extracted/ds2/DS2DAT6_258D62B5.str extracted/ds2/slasherhospital
+python pipeline/ds2_tg4.py extracted/ds2/slasherhospital extracted/ds2/slasherhospital/dds
+blender -b --factory-startup -P pipeline/ds2_to_fbx.py -- extracted/ds2/slasherhospital ds2_export/slasher.fbx --skeleton zombieb
+```
+The folder name passed to StrUnpack must be the character name (`slasherhospital`): the textures are
+`<name>_c/_n/_sp`. To find another Necromorph, look for its `chars\<name>` / `char_str\npc\<name>_cct` strings in
+DAT6-9 (MODLOG lists the names seen so far). Record the DAT and entry hash in `source_models.ds2_archive`.
 
 ## 4. Get each enemy's skeleton (fills `pipeline/bones/<breed>.txt`)
-Candidate route: import the enemy's unit (e.g. `units/beings/enemies/chaos_fanatic/chr_chaos_fanatic`) into
-Blender with Bitsquid Blender Tools, with bone-rotation fixing on. The armature gives both the bone names
-for `pipeline/bones/<breed>.txt` and the skeleton to rig the Necromorph onto in step 5.
-**Prove this on `chaos_fanatic` first.**
+Proven on `chaos_fanatic`. The breed's bundle is the murmur64 of `resource_packages/breeds/<breed>` (look it up in
+BBT's `unpacking/dictionary.csv`); extract only that enemy with BBT's bundled unpacker, then import with BBT:
+```
+unpacker.exe --dict dictionary.csv extract -i "units/beings/enemies/chaos_fanatic/*" "<VT2>/bundle/f46347ea8ad1569c" extracted/vt2
+blender -b -P pipeline/vt2_bones.py -- extracted/vt2/units/beings/enemies/chaos_fanatic/chr_chaos_fanatic.unit pipeline/bones/chaos_fanatic.txt --blend extracted/vt2/chaos_fanatic.blend
+```
+(`unpacker.exe` and `dictionary.csv` are in BBT's `unpacking` folder; Blender runs without `--factory-startup` so
+BBT is loaded.) The script writes the skin-weighted joints, one per line, and the full scene graph as comments.
+The saved `.blend` is the skeleton to rig onto in step 5.
 
 ## 5. Rig and import (fills `enemy_skins.rigged`)
 In Blender, fit the Necromorph over the enemy's skeleton, name the bones to match, weight it and export

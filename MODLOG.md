@@ -22,8 +22,10 @@
 - Sheets, preflight, generator, VMF mod source, Lua syntax check (lua5.1) and a stubbed logic test: 17/17 pass.
 
 ## Open questions (block the first in-game build)
-1. A Dead Space 2 model extractor that works on the current Steam/EA build (pipeline step 3).
-2. How to read Vermintide 2 enemy skeleton bone names (pipeline step 4).
+1. Dead Space 2 extraction: candidate found (Gibbed Visceral BigViewer DS2 + .STR unpacker + Noesis -> FBX;
+   ZenHAX/ResHax tutorials). Not yet tried on the owner's install.
+2. Vermintide 2 skeletons: candidate found (Bitsquid Blender Tools by qasikfwn imports units with skeletons
+   into Blender; vt2_bundle_unpacker for VT2's zstd bundle format). Not yet tried.
 3. In game: does `Unit.set_unit_visibility(false)` survive hit flashes and flow events? Does a linked skin
    follow bone scale on dismemberment?
 

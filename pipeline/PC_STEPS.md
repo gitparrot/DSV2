@@ -10,7 +10,12 @@ Necromorph Tide pipeline". It can then run the tools below itself. Each step lis
   and keep it first in the launcher's mod list.
 - **Vermintide Mod Builder (vmb)**: https://github.com/Vermintide-Mod-Framework/Vermintide-Mod-Builder/releases/latest
 - **Blender**: https://www.blender.org/download/
-- **A Dead Space 2 model extractor**: still to be found (step 3).
+- **Dead Space 2 extraction**: Gibbed's Visceral BigViewer (DS2 build) + its .STR unpacker, then Noesis
+  (https://richwhitehouse.com/index.php?content=inc_projects.php) to convert to FBX. See ResHax's
+  "Dead Space Legacy (2008-2013) 3D Model Tools" thread for current downloads.
+- **Vermintide 2 skeletons**: Bitsquid Blender Tools (BBT) by qasikfwn, which unpacks VT2 bundles and imports
+  units with their skeletons straight into Blender. VT2 Bundle Unpacker (gitlab.com/qasikfwn/vt2_bundle_unpacker)
+  is the command-line alternative.
 
 ## 2. Create the Workshop item (private)
 `vmb create dsv2`, then copy this repo's `mod/dsv2/` over the created folder. Keep `visibility = "private"` in
@@ -18,14 +23,17 @@ Necromorph Tide pipeline". It can then run the tools below itself. Each step lis
 loads and does nothing. That's the first check: its options appear in the game's mod menu.
 
 ## 3. Get the Necromorphs out of Dead Space 2 (fills `source_models.ds2_archive`, `extracted`)
-Find which archive in the Dead Space 2 folder holds each model and a tool that exports it, for example
-a Noesis plugin or a community script. Export each model to `ds2_export/<id>.fbx`; that folder is git-ignored.
-**Unknown: no current, documented tool was found yet. This is the first thing to prove, with the Slasher.**
+Candidate route (community tutorials, not yet tried on this install): open the game's `.viv`/archive files
+with the DS2 BigViewer, find the character folder under `global_assets`, extract the Necromorph's `.str`,
+unpack it with the bundled .STR unpacker, then open the result in Noesis and export FBX to
+`ds2_export/<id>.fbx` (git-ignored). Record the archive path in `source_models.ds2_archive`.
+**Prove this with the Slasher first.**
 
 ## 4. Get each enemy's skeleton (fills `pipeline/bones/<breed>.txt`)
-We need the bone names of each Vermintide enemy so the Necromorph can be weighted to them.
-**Unknown: how to read Vermintide 2's enemy skeletons (an SDK sample, a community unbundler, or a debug
-dump in game). Prove this on `chaos_fanatic` first.**
+Candidate route: import the enemy's unit (e.g. `units/beings/enemies/chaos_fanatic/chr_chaos_fanatic`) into
+Blender with Bitsquid Blender Tools, with bone-rotation fixing on. The armature gives both the bone names
+for `pipeline/bones/<breed>.txt` and the skeleton to rig the Necromorph onto in step 5.
+**Prove this on `chaos_fanatic` first.**
 
 ## 5. Rig and import (fills `enemy_skins.rigged`)
 In Blender, fit the Necromorph over the enemy's skeleton, name the bones to match, weight it and export

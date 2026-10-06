@@ -75,10 +75,16 @@ Managers = {
 	},
 }
 UnitSpawner = { create_unit_extensions = function () end }
-BreedFreezer = { unfreeze_unit = function (self, unit) unit.visible = true end }
+-- like the game, unfreezing shows the unit through Unit.set_unit_visibility (looked up at call time: hooked by then)
+BreedFreezer = { unfreeze_unit = function (self, unit) Unit.set_unit_visibility(unit, true) end }
+PlayerUnitCosmeticExtension = { _init_mesh_attachment = function () end }
+PlayerUnitFirstPerson = { init = function () end }
+AttachmentUtils = { link = function () end }
+AttachmentNodeLinking = { rotary_gun = { first_person = { wielded = { {} }, unwielded = { {} } }, third_person = { wielded = { {} } } } }
+Managers.backend = { get_interface = function () return { get = function () return 2 end } end }
 
 -- Mod framework stubs ------------------------------------------------------------------------------------
-local settings = { faction_chaos = true, faction_skaven = false, marker_banner = true }
+local settings = { faction_chaos = true, faction_skaven = false, marker_banner = true, isaac_engineer = true }
 local warnings = {}
 local infos = {}
 local commands = {}
@@ -105,6 +111,20 @@ local mod = {
 				standard_unit = { id = "marker_banner", skin_unit = "units/dsv2/marker_banner/marker_banner", scale = 1,
 					hide_inventory = false, setting = "marker_banner", links = { { 0, 0 } } },
 			},
+			careers = {
+				dr_engineer = {
+					third_person = { id = "isaac_3p", skin_unit = "units/dsv2/isaac_3p/isaac_3p", scale = 1,
+						hide_inventory = false, setting = "isaac_engineer", links = { { "Hips", "Hips" } } },
+					first_person = { id = "isaac_1p", skin_unit = "units/dsv2/isaac_1p/isaac_1p", scale = 1,
+						hide_inventory = false, setting = "isaac_engineer", links = { { "Hips", "Hips" } } },
+				},
+			},
+			weapons = {
+				rotary_gun = {
+					first_person = { id = "pulse_1p", skin_unit = "units/dsv2/pulse_1p/pulse_1p", scale = 1,
+						hide_inventory = false, setting = "isaac_engineer", links = { { 0, 0 } } },
+				},
+			},
 		}
 	end,
 }
@@ -123,12 +143,21 @@ function mod:hook_safe(obj, method, handler)
 	hooks[#hooks + 1] = method
 end
 
+function mod:hook(obj, method, handler)
+	local original = obj[method]
+
+	obj[method] = function (...)
+		return handler(original, ...)
+	end
+	hooks[#hooks + 1] = method
+end
+
 get_mod = function (name) assert(name == "dsv2") return mod end
 
 dofile("mod/dsv2/scripts/mods/dsv2/dsv2.lua")
 
 -- Scenarios ----------------------------------------------------------------------------------------------
-check(#hooks == 2, "two hooks registered (create_unit_extensions, unfreeze_unit)")
+check(#hooks == 6, "six hooks registered (visibility, spawn, unfreeze, 3p mesh, 1p mesh, weapon link): " .. #hooks)
 
 local world = "level_world"
 local fanatic = new_unit("chr_chaos_fanatic", { Hips = 10, Spine = 11 }, { breed = { name = "chaos_fanatic" } })
@@ -164,6 +193,7 @@ local skin = skin_on(fanatic)
 check(skin ~= nil and skin.name == "units/dsv2/slasher_fanatic/slasher_fanatic", "fanatic gets the Slasher skin")
 check(skin and #skin.links == 3, "skin root linked, plus the two bones both skeletons share; missing bone skipped")
 check(skin and skin.links[1][1] == 0 and skin.links[1][3] == 0, "skin root follows the host root (culling)")
+check(skin and skin.visible == true, "skin visible while its enemy is hidden")
 check(skin and skin.scales[1] and skin.scales[1][1] == 100 and skin.scales[2][1] == 100, "x100 rest scale restored on linked bones")
 check(#infos == 2, "one info line per skin type the first time it is applied (" .. #infos .. ")")
 check(fanatic.visible == false and axe.visible == false, "fanatic and its weapon hidden")
@@ -180,8 +210,10 @@ check(#warnings == 3, "warnings are not repeated")
 
 local freezer = { world = world }
 
+Unit.set_unit_visibility(fanatic, false)
+check(fanatic.visible == false and skin.visible == false, "the game hiding a skinned enemy (freezer) hides its skin")
 BreedFreezer.unfreeze_unit(freezer, fanatic, "chaos_fanatic")
-check(fanatic.visible == false, "re-hidden after the pool reuses it")
+check(fanatic.visible == false and skin.visible == true, "reused from the pool: skin shown, original stays hidden")
 
 local pooled = new_unit("chr_chaos_fanatic", { Hips = 10, Spine = 11 }, { breed = { name = "chaos_fanatic" } })
 
@@ -190,8 +222,41 @@ check(skin_on(pooled) ~= nil and pooled.visible == false, "pooled fanatic that n
 BreedFreezer.unfreeze_unit(freezer, clanrat, "skaven_clan_rat")
 check(skin_on(clanrat) == nil, "unfreezing a breed without a row does nothing")
 
+-- hero meshes and weapons
+local player = new_unit("player")
+local tp_mesh = new_unit("chr_third_person_mesh", { Hips = 5 })
+local fp_mesh = new_unit("chr_first_person_mesh", { Hips = 6 })
+local hand = new_unit("first_person_base", { j_leftweaponattach = 3 })
+local gun = new_unit("wpn_dw_rotary_gun_01_t1", { [0] = 0 })
+local slayer_mesh = new_unit("chr_third_person_mesh", { Hips = 5 })
+
+Unit.set_unit_visibility(tp_mesh, false) -- your own body is hidden in first person before the mod sees it
+PlayerUnitCosmeticExtension._init_mesh_attachment({ _tp_unit_mesh = tp_mesh }, world, player, "skin", {}, { name = "dr_engineer" })
+local isaac_3p = skin_on(tp_mesh)
+check(isaac_3p ~= nil and isaac_3p.name == "units/dsv2/isaac_3p/isaac_3p", "Outcast Engineer's 3rd-person body gets Isaac")
+check(tp_mesh.visible == false and isaac_3p.visible == false, "Isaac starts hidden like the body he replaces (first person)")
+Unit.set_unit_visibility(tp_mesh, true)
+check(tp_mesh.visible == false and isaac_3p.visible == true, "switching to 3rd person shows Isaac, not the dwarf")
+PlayerUnitCosmeticExtension._init_mesh_attachment({ _tp_unit_mesh = slayer_mesh }, world, player, "skin", {}, { name = "dr_slayer" })
+check(skin_on(slayer_mesh) == nil and slayer_mesh.visible, "other careers untouched")
+
+PlayerUnitFirstPerson.init({ world = world, first_person_attachment_unit = fp_mesh }, {}, player,
+	{ profile = { display_name = "dwarf_ranger", careers = { {}, { name = "dr_engineer" } } } })
+check(skin_on(fp_mesh) ~= nil and fp_mesh.visible == false, "first-person arms get Isaac's (career from hero attributes)")
+
+AttachmentUtils.link(world, hand, gun, AttachmentNodeLinking.rotary_gun.first_person.wielded)
+local rifle = skin_on(gun)
+check(rifle ~= nil and rifle.name == "units/dsv2/pulse_1p/pulse_1p" and gun.visible == false, "crank gun becomes the Pulse Rifle")
+AttachmentUtils.link(world, hand, gun, AttachmentNodeLinking.rotary_gun.first_person.unwielded)
+check(#rifle.links == 1, "re-linking the gun (holstered) does not add a second rifle")
+AttachmentUtils.link(world, hand, new_unit("axe"), { {} })
+gun.alive = false
+mod.update(0.016)
+check(not rifle.alive, "rifle removed once its gun is gone (sweep)")
+
 commands.dsv2_status()
-check(echoes[1] and echoes[1]:find("slasher_fanatic 2", 1, true), "/dsv2_status reports skins applied (" .. tostring(echoes[1]) .. ")")
+check(echoes[1] and echoes[1]:find("slasher_fanatic 2", 1, true) and echoes[1]:find("pulse_1p 1", 1, true),
+	"/dsv2_status reports skins applied (" .. tostring(echoes[1]) .. ")")
 
 UnitSpawner.create_unit_extensions(nil, world, fanatic, "ai_unit")
 mod.update(0.016)

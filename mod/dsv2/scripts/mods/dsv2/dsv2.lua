@@ -1,10 +1,10 @@
 local mod = get_mod("dsv2")
 
--- Necromorph Tide: Dead Space 2 models worn by Vermintide 2 enemies.
--- Each player's game hides the enemy's own model and links our skin to its skeleton, so the enemy keeps
--- its AI, animations, hit zones and networking. Nothing new is sent over the network: players without
--- the mod simply see the normal enemies. Which enemy gets which skin comes from dsv2_skins.lua, which is
--- generated from sheets/enemy_skins.json and sheets/props.json.
+-- Necromorph Tide: Dead Space 2 models worn by Vermintide 2 enemies, a hero career and its weapon.
+-- Each player's game hides the original model and links our skin to its skeleton, so the enemy (or hero) keeps
+-- its AI, animations, hit zones and networking. Nothing new is sent over the network: players without the mod
+-- simply see the normal models. Which unit gets which skin comes from dsv2_skins.lua, generated from
+-- sheets/enemy_skins.json, props.json, player_skins.json and weapon_skins.json.
 
 local SKINS = mod:dofile("scripts/mods/dsv2/dsv2_skins")
 
@@ -13,6 +13,8 @@ local world_of = {} -- host unit -> world it lives in
 local queued = {} -- spawned units waiting one frame, so their breed data is set
 local warned = {}
 local skinned_count = {} -- entry id -> skins applied this session (for /dsv2_status)
+local wanted = setmetatable({}, { __mode = "k" }) -- unit -> visibility the game last asked for
+local weapon_entry_of -- AttachmentNodeLinking table -> weapon skin entry, built on first use
 
 local function entry_for(unit, unit_template_name)
 	local breed = Unit.get_data(unit, "breed")
@@ -32,6 +34,7 @@ local function warn_once(key, message, ...)
 	end
 end
 
+-- Call before the skin is registered in skin_of, so the visibility hook below treats this as a plain hide.
 local function hide_host(unit, entry)
 	Unit.set_unit_visibility(unit, false)
 
@@ -63,13 +66,15 @@ local function remove_skin(unit)
 	world_of[unit] = nil
 end
 
-local function apply_skin(world, unit, entry)
+-- listen: also register a destroy listener (networked enemies and banners; local units like hero meshes and
+-- weapons are cleaned up by the sweep in mod.update instead).
+local function apply_skin(world, unit, entry, listen)
 	if skin_of[unit] or not mod:get(entry.setting) then
 		return
 	end
 
 	if #entry.links == 0 then
-		warn_once(entry.id, "%s has no bone list yet (sheets/enemy_skins.json bones_file); left unskinned", entry.id)
+		warn_once(entry.id, "%s has no bone list yet (bones_file in the sheets); left unskinned", entry.id)
 
 		return
 	end
@@ -104,7 +109,7 @@ local function apply_skin(world, unit, entry)
 		end
 	end
 
-	-- The skin's root follows the host's root, so the engine culls the skin where the enemy is, not at its spawn point.
+	-- The skin's root follows the host's root, so the engine culls the skin where the host is, not at its spawn point.
 	if not links_root then
 		World.link_unit(world, skin, 0, unit, 0)
 	end
@@ -135,12 +140,41 @@ local function apply_skin(world, unit, entry)
 		Unit.set_local_scale(skin, 0, Vector3(entry.scale, entry.scale, entry.scale))
 	end
 
+	-- Start as visible as the game currently wants the host (e.g. your own 3rd-person body while in first person).
+	local was_wanted = wanted[unit]
+
+	hide_host(unit, entry)
+
+	wanted[unit] = was_wanted
 	skin_of[unit] = skin
 	world_of[unit] = world
 
-	hide_host(unit, entry)
-	Managers.state.unit_spawner:add_destroy_listener(unit, "dsv2_skin", remove_skin)
+	if was_wanted == false then
+		Unit.set_unit_visibility(skin, false)
+	end
+
+	if listen then
+		Managers.state.unit_spawner:add_destroy_listener(unit, "dsv2_skin", remove_skin)
+	end
 end
+
+-- The game shows and hides units through here (first/third person switches, hidden weapons, frozen enemies).
+-- A host wearing a skin stays hidden and the skin gets the visibility the game asked for.
+mod:hook(Unit, "set_unit_visibility", function (func, unit, visible, ...)
+	wanted[unit] = visible
+
+	local skin = skin_of[unit]
+
+	if skin then
+		if Unit.alive(skin) then
+			func(skin, visible, ...)
+		end
+
+		return func(unit, false, ...)
+	end
+
+	return func(unit, visible, ...)
+end)
 
 -- Every enemy (spawned here or received as a husk from the host) and every placed banner passes here.
 mod:hook_safe(UnitSpawner, "create_unit_extensions", function (self, world, unit, unit_template_name)
@@ -151,23 +185,74 @@ mod:hook_safe(UnitSpawner, "create_unit_extensions", function (self, world, unit
 	}
 end)
 
--- Pooled enemies come back through here, not through create_unit_extensions, and are made visible again.
--- Keep the original model hidden, or give the skin to a pooled enemy that never had one.
+-- Pooled enemies come back through here, not through create_unit_extensions. The game's "show" on reuse goes
+-- through the visibility hook (host stays hidden, skin shows); a pooled enemy that never had a skin gets one.
 mod:hook_safe(BreedFreezer, "unfreeze_unit", function (self, unit, breed_name)
 	local entry = SKINS.breeds[breed_name] or entry_for(unit)
 
-	if not entry then
-		return
-	end
-
-	if skin_of[unit] then
-		hide_host(unit, entry)
-	else
-		apply_skin(self.world, unit, entry)
+	if entry and not skin_of[unit] then
+		apply_skin(self.world, unit, entry, true)
 	end
 end)
 
-mod:command("dsv2_status", "Necromorph Tide: how many enemies wear a skin right now", function ()
+-- Every hero's third-person body (yours and other players') is spawned here; the career picks the skin.
+mod:hook_safe(PlayerUnitCosmeticExtension, "_init_mesh_attachment", function (self, world, unit, skin_name, profile, career)
+	local entry = career and SKINS.careers[career.name] and SKINS.careers[career.name].third_person
+
+	if entry and self._tp_unit_mesh then
+		apply_skin(world, self._tp_unit_mesh, entry)
+	end
+end)
+
+-- Your first-person arms are spawned here. The career is looked up the same way the game does it.
+mod:hook_safe(PlayerUnitFirstPerson, "init", function (self, extension_init_context, unit, extension_init_data)
+	local profile = extension_init_data.profile
+	local hero_attributes = Managers.backend:get_interface("hero_attributes")
+	local career = profile and profile.careers[hero_attributes:get(profile.display_name, "career") or 1]
+	local entry = career and SKINS.careers[career.name] and SKINS.careers[career.name].first_person
+
+	if entry and self.first_person_attachment_unit then
+		apply_skin(self.world, self.first_person_attachment_unit, entry)
+	end
+end)
+
+-- Weapons are linked to hands and holsters here. The linking table the game passes identifies the weapon:
+-- AttachmentNodeLinking.<key>.<first_person|third_person>, or its wielded/unwielded sub-tables.
+local function weapon_entry(node_linking)
+	if not weapon_entry_of then
+		weapon_entry_of = {}
+
+		for key, views in pairs(SKINS.weapons) do
+			local linking = AttachmentNodeLinking[key]
+
+			for view, entry in pairs(views) do
+				local sub = linking and linking[view]
+
+				if type(sub) == "table" then
+					weapon_entry_of[sub] = entry
+
+					for _, part in pairs(sub) do
+						if type(part) == "table" then
+							weapon_entry_of[part] = entry
+						end
+					end
+				end
+			end
+		end
+	end
+
+	return weapon_entry_of[node_linking]
+end
+
+mod:hook_safe(AttachmentUtils, "link", function (world, source, target, node_linking)
+	local entry = node_linking and weapon_entry(node_linking)
+
+	if entry and Unit.alive(target) then
+		apply_skin(world, target, entry)
+	end
+end)
+
+mod:command("dsv2_status", "Necromorph Tide: how many units wear a skin right now", function ()
 	local alive = 0
 
 	for _, skin in pairs(skin_of) do
@@ -187,6 +272,13 @@ mod:command("dsv2_status", "Necromorph Tide: how many enemies wear a skin right 
 end)
 
 mod.update = function ()
+	-- Hero meshes and weapons are local units with no destroy listener: drop skins whose host is gone.
+	for unit in pairs(skin_of) do
+		if not Unit.alive(unit) then
+			remove_skin(unit)
+		end
+	end
+
 	if #queued == 0 then
 		return
 	end
@@ -202,7 +294,7 @@ mod.update = function ()
 			local entry = entry_for(unit, item.unit_template_name)
 
 			if entry then
-				apply_skin(item.world, unit, entry)
+				apply_skin(item.world, unit, entry, true)
 			end
 		end
 	end

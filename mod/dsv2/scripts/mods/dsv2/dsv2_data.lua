@@ -11,6 +11,7 @@ return {
 			{ setting_id = "faction_skaven", type = "checkbox", default_value = true },
 			{ setting_id = "faction_beastmen", type = "checkbox", default_value = true },
 			{ setting_id = "marker_banner", type = "checkbox", default_value = true },
+			{ setting_id = "isaac_engineer", type = "checkbox", default_value = true },
 		},
 	},
 }

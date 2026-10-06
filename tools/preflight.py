@@ -8,7 +8,8 @@ import os
 import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-SHEETS = ["source_models", "enemy_skins", "props", "settings", "hooks"]
+SHEETS = ["source_models", "enemy_skins", "props", "player_skins", "weapon_skins", "settings", "hooks"]
+SKIN_SHEETS = ("enemy_skins", "props", "player_skins", "weapon_skins")
 UNFILLED = ("TODO_PC", None, "")
 STATUS_COLUMNS = ("extracted", "rigged", "tested_in_game")
 MOD_SCRIPT = os.path.join(ROOT, "mod", "dsv2", "scripts", "mods", "dsv2", "dsv2.lua")
@@ -39,7 +40,7 @@ def preflight():
                     broken.append(f"{where}.{column}: column not declared in sheet")
 
     ids = {name: {row["id"] for row in sheet["rows"]} for name, sheet in sheets.items()}
-    for name in ("enemy_skins", "props"):
+    for name in SKIN_SHEETS:
         for row in sheets[name]["rows"]:
             where = f"{name}[{row['id']}]"
             if row["source_model"] not in ids["source_models"]:
@@ -56,7 +57,17 @@ def preflight():
         if not os.path.isfile(bones) or not read_bones(bones):
             unfilled.append(f"enemy_skins[{row['id']}].bones_file: {row['bones_file']} missing or empty (export from the SDK)")
 
-    used = {row["source_model"] for name in ("enemy_skins", "props") for row in sheets[name]["rows"]}
+    for row in sheets["player_skins"]["rows"]:
+        bones = os.path.join(ROOT, row["bones_file"])
+        if not os.path.isfile(bones) or not read_bones(bones):
+            unfilled.append(f"player_skins[{row['id']}].bones_file: {row['bones_file']} missing or empty")
+        if row["view"] not in ("first_person", "third_person"):
+            broken.append(f"player_skins[{row['id']}].view: {row['view']!r} is not first_person/third_person")
+    for row in sheets["weapon_skins"]["rows"]:
+        if row["view"] not in ("first_person", "third_person"):
+            broken.append(f"weapon_skins[{row['id']}].view: {row['view']!r} is not first_person/third_person")
+
+    used = {row["source_model"] for name in SKIN_SHEETS for row in sheets[name]["rows"]}
     for model in sorted(ids["source_models"] - used):
         broken.append(f"source_models[{model}]: not used by any skin or prop")
 
@@ -69,6 +80,8 @@ def preflight():
                 needle = "mod.update"
             elif row["kind"] == "listener":
                 needle = func
+            elif row["kind"] == "hook":
+                needle = f'mod:hook({cls}, "{func}"'
             else:
                 needle = f'mod:hook_safe({cls}, "{func}"'
             if needle not in script:

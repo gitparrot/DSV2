@@ -1,0 +1,58 @@
+{
+ "sheet": "weapon_skins",
+ "about": "A hero weapon swapped for a Dead Space 2 gun. The mod spots the weapon by the AttachmentNodeLinking table the game links it with, hides it on your PC and links the skin's root to the weapon's root, so it follows the hand, the hip holster and every animation.",
+ "columns": {
+  "id": "key",
+  "source_model": "-> source_models.id",
+  "node_linking": "AttachmentNodeLinking.<key> the weapon is linked with",
+  "view": "first_person or third_person (sub-table of that linking)",
+  "host_unit": "the game's weapon unit",
+  "host_source": "where it is defined/linked in the game's Lua",
+  "skin_unit": "our unit",
+  "link_nodes": "list of [host_node, skin_node] pairs; node 0 is the root",
+  "scale": "uniform scale",
+  "setting": "-> settings.id",
+  "rigged": "true once imported in the SDK",
+  "tested_in_game": "true once seen in game"
+ },
+ "rows": [
+  {
+   "id": "pulse_rifle_1p",
+   "source_model": "pulse_rifle",
+   "node_linking": "rotary_gun",
+   "view": "first_person",
+   "host_unit": "units/weapons/player/wpn_dw_rotary_gun_01_t1/wpn_dw_rotary_gun_01_t1 (and _t2)",
+   "host_source": "vt2src scripts/settings/dlcs/cog/attachment_node_linking_cog.lua:179 (AttachmentNodeLinking.rotary_gun), linked by AttachmentUtils.link (scripts/helpers/attachment_utils.lua:66)",
+   "skin_unit": "units/dsv2/pulse_rifle_1p/pulse_rifle_1p",
+   "link_nodes": [
+    [
+     0,
+     0
+    ]
+   ],
+   "scale": 1.0,
+   "setting": "isaac_engineer",
+   "rigged": false,
+   "tested_in_game": false
+  },
+  {
+   "id": "pulse_rifle_3p",
+   "source_model": "pulse_rifle",
+   "node_linking": "rotary_gun",
+   "view": "third_person",
+   "host_unit": "units/weapons/player/wpn_dw_rotary_gun_01_t1/wpn_dw_rotary_gun_01_t1_3p (and _t2_3p)",
+   "host_source": "vt2src scripts/settings/dlcs/cog/attachment_node_linking_cog.lua:179, AttachmentUtils.link",
+   "skin_unit": "units/dsv2/pulse_rifle_3p/pulse_rifle_3p",
+   "link_nodes": [
+    [
+     0,
+     0
+    ]
+   ],
+   "scale": 1.0,
+   "setting": "isaac_engineer",
+   "rigged": false,
+   "tested_in_game": false
+  }
+ ]
+}

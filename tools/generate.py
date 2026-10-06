@@ -40,8 +40,9 @@ def write(path, text):
 
 def generate(draft):
     skins, props, settings = load("enemy_skins"), load("props"), load("settings")
+    players, weapons = load("player_skins"), load("weapon_skins")
 
-    out = [HEADER, "local SKINS = { breeds = {}, templates = {} }\n"]
+    out = [HEADER, "local SKINS = { breeds = {}, templates = {}, careers = {}, weapons = {} }\n"]
     for row in skins["rows"]:
         links = [[bone, bone] for bone in bones_for(row)]
         out.append(
@@ -54,6 +55,23 @@ def generate(draft):
         out.append(
             f"-- {row['id']}: {row['source_model']} replaces {row['host_unit']}\n"
             f"SKINS.templates.{row['unit_template']} = {{\n"
+            f"\tid = {lua(row['id'])},\n\tskin_unit = {lua(row['skin_unit'])},\n\tscale = {lua(row['scale'])},\n"
+            f"\thide_inventory = false,\n\tsetting = {lua(row['setting'])},\n"
+            f"\tlinks = {{ {', '.join(lua(l) for l in row['link_nodes'])} }},\n}}\n")
+    for row in players["rows"]:  # SKINS.careers.<career>.<first_person|third_person>
+        links = [[bone, bone] for bone in bones_for(row)]
+        out.append(
+            f"-- {row['id']}: {row['source_model']} on {row['career']} ({row['view']})\n"
+            f"SKINS.careers.{row['career']} = SKINS.careers.{row['career']} or {{}}\n"
+            f"SKINS.careers.{row['career']}.{row['view']} = {{\n"
+            f"\tid = {lua(row['id'])},\n\tskin_unit = {lua(row['skin_unit'])},\n\tscale = {lua(row['scale'])},\n"
+            f"\thide_inventory = false,\n\tsetting = {lua(row['setting'])},\n"
+            f"\tlinks = {{ {', '.join(lua(l) for l in links)} }},\n}}\n")
+    for row in weapons["rows"]:  # SKINS.weapons.<AttachmentNodeLinking key>.<first_person|third_person>
+        out.append(
+            f"-- {row['id']}: {row['source_model']} replaces {row['node_linking']} ({row['view']})\n"
+            f"SKINS.weapons.{row['node_linking']} = SKINS.weapons.{row['node_linking']} or {{}}\n"
+            f"SKINS.weapons.{row['node_linking']}.{row['view']} = {{\n"
             f"\tid = {lua(row['id'])},\n\tskin_unit = {lua(row['skin_unit'])},\n\tscale = {lua(row['scale'])},\n"
             f"\thide_inventory = false,\n\tsetting = {lua(row['setting'])},\n"
             f"\tlinks = {{ {', '.join(lua(l) for l in row['link_nodes'])} }},\n}}\n")
@@ -77,13 +95,13 @@ def generate(draft):
     write(os.path.join(SCRIPTS, "dsv2_localization.lua"), HEADER + "return {\n" + "".join(loc) + "}\n")
 
     # Only units that exist in the SDK project can go in the package, or the build fails.
-    rows = skins["rows"] + props["rows"]
+    rows = skins["rows"] + props["rows"] + players["rows"] + weapons["rows"]
     # Variant rows (shield, commander) share their base row's skin unit; list each unit once.
     units = list(dict.fromkeys(r["skin_unit"] for r in rows if r["rigged"] is True))
     unit_block = "".join(f'\t"{u}"\n' for u in units)
     write(os.path.join(MOD, "resource_packages", "dsv2", "dsv2.package"), (
         "lua = [\n\t\"scripts/mods/dsv2/*\"\n]\n" + (f"\nunit = [\n{unit_block}]\n" if units else "")))
-    print(f"generated {len(skins['rows'])} enemy skins, {len(props['rows'])} props, "
+    print(f"generated {len(skins['rows'])} enemy skins, {len(props['rows'])} props, {len(players['rows'])} player skins, {len(weapons['rows'])} weapon skins, "
           f"{len(settings['rows'])} settings; {len(units)} units in the package")
 
 

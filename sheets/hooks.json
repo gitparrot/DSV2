@@ -4,7 +4,7 @@
  "columns": {
   "id": "key",
   "target": "Class.function hooked",
-  "kind": "hook_safe (runs after, can't change result) / update",
+  "kind": "hook_safe (runs after, can't change result) / hook (wraps the call) / update / listener",
   "source": "where it is defined",
   "purpose": "why",
   "tested_in_game": "true once verified"
@@ -40,6 +40,38 @@
    "kind": "update",
    "source": "VMF mod callback",
    "purpose": "Apply queued skins one frame after spawn.",
+   "tested_in_game": false
+  },
+  {
+   "id": "on_tp_mesh",
+   "target": "PlayerUnitCosmeticExtension._init_mesh_attachment",
+   "kind": "hook_safe",
+   "source": "vt2src scripts/unit_extensions/default_player_unit/cosmetic/player_unit_cosmetic_extension.lua:190",
+   "purpose": "Every hero's third-person mesh (yours and other players') is spawned here; skin it if a player_skins row matches the career.",
+   "tested_in_game": false
+  },
+  {
+   "id": "on_fp_mesh",
+   "target": "PlayerUnitFirstPerson.init",
+   "kind": "hook_safe",
+   "source": "vt2src scripts/unit_extensions/default_player_unit/player_unit_first_person.lua:20",
+   "purpose": "Your first-person arms are spawned here; skin them if a player_skins row matches the career.",
+   "tested_in_game": false
+  },
+  {
+   "id": "on_attachment_link",
+   "target": "AttachmentUtils.link",
+   "kind": "hook_safe",
+   "source": "vt2src scripts/helpers/attachment_utils.lua:66",
+   "purpose": "Weapons are linked to hands and holsters here; the node_linking table identifies the weapon (weapon_skins).",
+   "tested_in_game": false
+  },
+  {
+   "id": "visibility_mirror",
+   "target": "Unit.set_unit_visibility",
+   "kind": "hook",
+   "source": "engine function, called from Lua by the game to show and hide units",
+   "purpose": "Hosts wearing a skin stay hidden; the visibility the game asks for goes to the skin instead (first/third person switches, hidden weapons, frozen enemies).",
    "tested_in_game": false
   }
  ]

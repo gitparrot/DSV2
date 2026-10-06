@@ -1,0 +1,48 @@
+{
+ "sheet": "player_skins",
+ "about": "A hero career wearing a Dead Space 2 suit. Same visual swap as enemies: the career's own mesh is hidden on your PC and the suit is linked to its skeleton. First and third person are separate meshes (and skeletons) in Vermintide 2.",
+ "columns": {
+  "id": "key",
+  "source_model": "-> source_models.id",
+  "career": "career name (career.name, e.g. dr_engineer)",
+  "view": "first_person (your arms) or third_person (the body others, and you in third person, see)",
+  "host_unit": "the career's own mesh unit",
+  "host_source": "where it is spawned in the game's Lua",
+  "skin_unit": "our unit",
+  "bones_file": "pipeline/bones/<x>.txt: bones the skin is linked on",
+  "scale": "uniform scale",
+  "setting": "-> settings.id",
+  "rigged": "true once imported in the SDK",
+  "tested_in_game": "true once seen in game"
+ },
+ "rows": [
+  {
+   "id": "isaac_engineer_3p",
+   "source_model": "isaac_engineering",
+   "career": "dr_engineer",
+   "view": "third_person",
+   "host_unit": "units/beings/player/dwarf_ranger_engineer/third_person_base/chr_third_person_mesh",
+   "host_source": "vt2src scripts/unit_extensions/default_player_unit/cosmetic/player_unit_cosmetic_extension.lua:190-198 (_init_mesh_attachment); shown/hidden by show_third_person_mesh :238-242",
+   "skin_unit": "units/dsv2/isaac_engineer_3p/isaac_engineer_3p",
+   "bones_file": "pipeline/bones/dr_engineer_3p.txt",
+   "scale": 1.0,
+   "setting": "isaac_engineer",
+   "rigged": false,
+   "tested_in_game": false
+  },
+  {
+   "id": "isaac_engineer_1p",
+   "source_model": "isaac_engineering",
+   "career": "dr_engineer",
+   "view": "first_person",
+   "host_unit": "units/beings/player/dwarf_ranger_engineer/first_person_base/chr_first_person_mesh",
+   "host_source": "vt2src scripts/unit_extensions/default_player_unit/player_unit_first_person.lua:20-52 (init); shown/hidden at :912, :977, :988",
+   "skin_unit": "units/dsv2/isaac_engineer_1p/isaac_engineer_1p",
+   "bones_file": "pipeline/bones/dr_engineer_1p.txt",
+   "scale": 1.0,
+   "setting": "isaac_engineer",
+   "rigged": false,
+   "tested_in_game": false
+  }
+ ]
+}

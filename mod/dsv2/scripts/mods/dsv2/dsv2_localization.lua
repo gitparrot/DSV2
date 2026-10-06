@@ -27,4 +27,10 @@ return {
 	marker_banner_description = {
 		en = "Beastmen war banners become Marker shards. Applies to enemies that spawn after you change it.",
 	},
+	isaac_engineer = {
+		en = "Isaac Clarke as the Outcast Engineer",
+	},
+	isaac_engineer_description = {
+		en = "Bardin's Outcast Engineer wears Isaac's Engineering suit and his crank gun becomes a Pulse Rifle. Only you see it. Applies the next time the hero or weapon spawns.",
+	},
 }

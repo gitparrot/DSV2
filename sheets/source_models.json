@@ -137,6 +137,22 @@
    "ds2_archive": "TODO_PC",
    "export_file": "ds2_export/marker_shard.fbx",
    "extracted": false
+  },
+  {
+   "id": "isaac_engineering",
+   "ds2_name": "Isaac Clarke, Engineering suit (with helmet)",
+   "role": "Bardin's Outcast Engineer",
+   "ds2_archive": "DS2DAT9.DAT entry 0x6219387A: global_assets\\global_assets\\ds_assets\\char_str\\plyr\\plyr_unfm\\uniminer.str; skeleton \"player\" from global_assets\\global_assets.str (0x65808025); helmet skeleton playerMinerHelmet",
+   "export_file": "ds2_export/isaac_engineering.fbx",
+   "extracted": true
+  },
+  {
+   "id": "pulse_rifle",
+   "ds2_name": "Pulse Rifle",
+   "role": "replaces the Outcast Engineer's crank gun",
+   "ds2_archive": "DS2DAT9.DAT entry 0x6E97957D: global_assets\\global_assets\\ds_assets\\weapn_str\\pulserifl.str, skeleton pulse_rifle",
+   "export_file": "ds2_export/pulse_rifle.fbx",
+   "extracted": false
   }
  ]
 }

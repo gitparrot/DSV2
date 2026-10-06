@@ -36,6 +36,13 @@
    "default": true,
    "title": "Marker banners",
    "tooltip": "Beastmen war banners become Marker shards. Applies to enemies that spawn after you change it."
+  },
+  {
+   "id": "isaac_engineer",
+   "type": "checkbox",
+   "default": true,
+   "title": "Isaac Clarke as the Outcast Engineer",
+   "tooltip": "Bardin's Outcast Engineer wears Isaac's Engineering suit and his crank gun becomes a Pulse Rifle. Only you see it. Applies the next time the hero or weapon spawns."
   }
  ]
 }

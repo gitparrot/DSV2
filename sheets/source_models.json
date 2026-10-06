@@ -126,9 +126,9 @@
    "id": "divider",
    "ds2_name": "Divider",
    "role": "tall armoured elite",
-   "ds2_archive": "TODO_PC",
+   "ds2_archive": "DS2DAT9.DAT entry 0x0F6943FA: chars div (char_str\\npc\\div_cct), skeleton divider_main (+ dividerHead/HandLeft/FootLeft creatures)",
    "export_file": "ds2_export/divider.fbx",
-   "extracted": false
+   "extracted": true
   },
   {
    "id": "marker_shard",

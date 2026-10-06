@@ -6,7 +6,8 @@
   "stretch": "fit: stretch the bone so its tail reaches this host joint (changes the bone's length)",
   "aim": "fit: turn the bone towards this host joint without changing its length",
   "tail_to": "before fitting, point the bone's tail at this DS2 bone's head, so stretch/aim use the limb's real direction",
-  "rigid": "true: keep this part's own size even if its parent is stretched (heads, hands, blades)"
+  "rigid": "true: keep this part's own size even if its parent is stretched (heads, hands, blades)",
+  "parent": "before fitting, re-parent this bone (keeping its rest position) under that source bone"
  },
  "rotate_z_degrees": 180,
  "bones": {

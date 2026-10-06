@@ -161,6 +161,20 @@ slasher_marauder_shield, enhanced_stormvermin_shield/commander; generate.py list
   caps. Specular is `_s`, not `_sp`. Looks lanky: a child stretched to the slave rat's height.
 - Built: 5 skin units (Fanatic, Clan Rat, Marauder, Raider, Slave) cover 9 breeds with the variants. Not yet seen in game.
 
+**Divider on the Chaos Warrior (owner's request, 2026-10-06): rigged and built, not yet seen in game.**
+- `chars div`, DAT9 0x0F6943FA. Four skeletons in one stream: divider_main (183 joints) plus the head, hand and foot
+  that crawl off as their own creatures. Each of those pieces exists twice (on the body, and standalone), so
+  `ds2_geo.py` now pairs Mesh/MeshVolatile halves by file index, and `ds2_to_fbx.py` keeps only meshes bound to the
+  chosen skeleton (and builds the joint-hash table from those only: the other skeletons reuse joint numbers).
+- Names: 130/183 from the ragdoll naming pattern (torso_l_hip, handLeft_tail03, head_tongue05...), added to
+  `ds2_bone_names.txt`. Base colour is `_ca`; the tongue is modelled 5 m long and straight, so `--skip tongue`.
+- Anatomy that drove the map: the arms are the hand-creatures' tails (tail07 at the shoulder ... tail01 at the
+  hand), and hands, feet and head hang off the root. New `parent` field in bone maps re-parents them onto the torso
+  before fitting; the arm swings as one piece about the shoulder towards the Warrior's hand, keeping the Divider's
+  long reach. `make_divider_to_warrior.py` generates the 183-row map. The Chaos Warrior is the same height (~2.2 m).
+- Warrior shoulders are armour (not skinned), so shoulder weights go to j_spine1. Under an extreme test pose the
+  long arm curls around the Warrior's elbow; normal swings to be judged in game.
+
 ## Open questions (block the first in-game build)
 1. Look and feel still to judge: blade arms vs the Fanatic's swings, the forward-jutting jaw, the torch flame that
    still shows (it's the hidden torch item's effect), and dismemberment.

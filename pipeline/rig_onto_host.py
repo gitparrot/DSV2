@@ -114,6 +114,10 @@ bpy.context.view_layer.update()
 bpy.context.view_layer.objects.active = src_arm
 bpy.ops.object.mode_set(mode="EDIT")
 eb = src_arm.data.edit_bones
+for name, row in bmap.items():  # re-parent first (the Divider's hands, feet and head hang off its root)
+    if "parent" in row and name in eb:
+        eb[name].use_connect = False
+        eb[name].parent = eb[row["parent"]]
 for name, row in bmap.items():
     b = eb.get(name)
     if b is None:

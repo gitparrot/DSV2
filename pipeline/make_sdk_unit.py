@@ -119,6 +119,8 @@ def main():
         w(f"{a.id}_{suffix}.texture", texture(f"{res_dir}/{a.id}_{suffix}", fmt, srgb))
         if src == "sp" and not os.path.exists(f"{a.textures}_sp.png"):
             src = "s"  # the Pack names its specular map _s
+        if src == "c" and not os.path.exists(f"{a.textures}_c.png"):
+            src = "ca"  # the Divider's base colour is _ca
         shutil.copyfile(f"{a.textures}_{src}.png", os.path.join(out, f"{a.id}_{suffix}.png"))
     shutil.copyfile(a.fbx, os.path.join(out, f"{a.id}.fbx"))
     print(f"wrote {res_dir}/{a.id}.unit (+ material, 3 textures; fbx/png copied, git-ignored) in {a.mod}")

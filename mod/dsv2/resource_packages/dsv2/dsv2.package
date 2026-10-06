@@ -8,4 +8,5 @@ unit = [
 	"units/dsv2/slasher_marauder/slasher_marauder"
 	"units/dsv2/pack_slave/pack_slave"
 	"units/dsv2/enhanced_raider/enhanced_raider"
+	"units/dsv2/divider_warrior/divider_warrior"
 ]

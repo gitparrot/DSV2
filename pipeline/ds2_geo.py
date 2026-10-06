@@ -127,21 +127,30 @@ def read_rcb(data):
 
 
 def load_stream_geos(unpacked_dir):
-    """Join Mesh/NNNN_x.geo with MeshVolatile/MMMM_x.geo (same x) and parse each."""
+    """Join Mesh/NNNN_x.geo with MeshVolatile/(NNNN+1)_x.geo and parse each.
+
+    StrUnpack numbers every file in stream order and a mesh's volatile half comes right after it, so pairs are
+    matched by index, not just name: the Divider has two meshes called dividerhead (on the body, and the head that
+    crawls off on its own). Keys are the file name without index, plus "#N" for later duplicates."""
     mesh_dir, vol_dir = os.path.join(unpacked_dir, "Mesh"), os.path.join(unpacked_dir, "MeshVolatile")
     vol = {}
     if os.path.isdir(vol_dir):
         for f in os.listdir(vol_dir):
-            vol[re.sub(r"^\d+_", "", f)] = os.path.join(vol_dir, f)
+            m = re.match(r"^(\d+)_(.*)$", f)
+            vol[(int(m.group(1)), m.group(2))] = os.path.join(vol_dir, f)
     out = {}
     for f in sorted(os.listdir(mesh_dir)):
-        key = re.sub(r"^\d+_", "", f)
+        m = re.match(r"^(\d+)_(.*)$", f)
+        idx, key = int(m.group(1)), m.group(2)
         data = open(os.path.join(mesh_dir, f), "rb").read()
-        if key in vol:
-            data += open(vol[key], "rb").read()
+        if (idx + 1, key) in vol:
+            data += open(vol[(idx + 1, key)], "rb").read()
         if struct.unpack_from("<I", data, 0x38)[0] == 0:
             continue  # lodmodel.geo: unskinned far LOD with another vertex layout, not needed
-        out[key] = read_geo(data)
+        n, k = 2, key
+        while k in out:
+            k, n = f"{key}#{n}", n + 1
+        out[k] = read_geo(data)
     return out
 
 

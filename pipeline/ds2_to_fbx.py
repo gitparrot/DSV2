@@ -1,6 +1,7 @@
 """Blender script: build a Dead Space 2 character from a StrUnpack'ed stream and export FBX.
 
     blender -b --factory-startup -P pipeline/ds2_to_fbx.py -- <unpacked dir> <out.fbx> [--skeleton zombieb] [--caps]
+        [--skip <regex>]   (leave pieces out, e.g. the Divider's tongue, modelled 5 m long and straight)
         [--names-from <other unpacked dir>]   (joint names from another stream's .hkx with the same skeleton;
                                                the Enhanced Slasher's own .hkx has no Deform_ names for it)
 
@@ -23,6 +24,7 @@ src, out_fbx = os.path.abspath(argv[0]), os.path.abspath(argv[1])
 skel_name = argv[argv.index("--skeleton") + 1] if "--skeleton" in argv else None
 with_caps = "--caps" in argv
 names_from = [os.path.abspath(argv[i + 1]) for i, a in enumerate(argv) if a == "--names-from"]
+skip = [argv[i + 1] for i, a in enumerate(argv) if a == "--skip"]  # regexes of mesh pieces to leave out
 model = os.path.basename(os.path.normpath(src))
 
 Y_UP_TO_Z_UP = Matrix(((1, 0, 0, 0), (0, 0, -1, 0), (0, 1, 0, 0), (0, 0, 0, 1)))
@@ -35,6 +37,8 @@ skels = {s["name"]: s for s in rcb["skeletons"]}
 skel = skels[skel_name] if skel_name else rcb["skeletons"][-1]
 geos = ds2_geo.load_stream_geos(src)
 
+# only meshes bound to this skeleton: other skeletons in the stream reuse the same joint numbers
+geos = {k: g for k, g in geos.items() if not g["bones"] or len(g["bones"]) == len(skel["parents"])}
 hashes = {b["rcb_index"]: b["hash"] for g in geos.values() for b in g["bones"]}
 hkx = b"".join(open(os.path.join(d, "HKX", f), "rb").read()
                for d in [src, *names_from] if os.path.isdir(os.path.join(d, "HKX")) for f in os.listdir(os.path.join(d, "HKX")))
@@ -88,7 +92,7 @@ def tex(suffix, colorspace):
     return node
 
 
-c = tex("c", "sRGB")
+c = tex("c", "sRGB") or tex("ca", "sRGB")  # base colour is _ca (colour + alpha) on the Divider
 if c:
     nt.links.new(c.outputs["Color"], bsdf.inputs["Base Color"])
 n = tex("n", "Non-Color")
@@ -115,6 +119,10 @@ if sp:
 # ---- meshes ----------------------------------------------------------------------------------------
 pieces = 0
 for key, g in geos.items():
+    if g["bones"] and len(g["bones"]) != len(skel["parents"]):
+        continue  # bound to another skeleton in the stream (the Divider's head/hands/feet as separate creatures)
+    if any(re.search(rx, key, re.I) for rx in skip):
+        continue
     if not with_caps and re.search(r"_(pc|sc)_dism|_cap_", key):  # wound caps (Slasher _pc/_sc, Pack *_cap_*)
         continue
     for m in g["meshes"]:

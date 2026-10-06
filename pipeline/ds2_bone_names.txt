@@ -1,0 +1,43 @@
+# Dead Space 2 joint names that are not stored as strings in a stream (its .geo only has their hashes).
+# Found by hashing candidates against the hashes (Gibbed's hash: lowercase, h*65599+c). ds2_to_fbx.py checks these.
+# The Pack (pack_boy, skeleton "pack"): 40 of 49 found; rcb indices 1, 4, 7, 11, 21, 23, 24, 27, 28 still unknown.
+m_root
+m_pelvis
+m_camera
+l_hip
+r_hip
+l_knee
+r_knee
+m_neck1
+m_neck2
+l_clav
+r_clav
+l_ankle
+r_ankle
+l_shoulder
+r_shoulder
+l_ball
+r_ball
+m_jaw
+l_elbow
+r_elbow
+l_wrist
+r_wrist
+l_finger1
+l_finger2
+l_finger3
+r_finger1
+r_finger2
+r_finger3
+l_index1
+l_index2
+l_index3
+r_index1
+r_index2
+r_index3
+l_thumb1
+l_thumb2
+l_thumb3
+r_thumb1
+r_thumb2
+r_thumb3

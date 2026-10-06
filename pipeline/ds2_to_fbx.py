@@ -1,6 +1,8 @@
 """Blender script: build a Dead Space 2 character from a StrUnpack'ed stream and export FBX.
 
     blender -b --factory-startup -P pipeline/ds2_to_fbx.py -- <unpacked dir> <out.fbx> [--skeleton zombieb] [--caps]
+        [--names-from <other unpacked dir>]   (joint names from another stream's .hkx with the same skeleton;
+                                               the Enhanced Slasher's own .hkx has no Deform_ names for it)
 
 Skeleton: .rcb inverse bind matrices + hierarchy; joint names from the .hkx.win (matched by hash).
 Meshes: every skinned *_dism.geo piece (wound caps *_pc/*_sc only with --caps; lodmodel skipped).
@@ -8,7 +10,7 @@ Textures: <dir>/dds/*.dds from pipeline/ds2_tg4.py (<model>_c base colour, _n DX
 Dead Space is Y-up; the scene is built Z-up and the FBX is written Y-up like any Blender export.
 Output stays in git-ignored ds2_export/ (also saves a .blend next to it).
 """
-import os, re, sys
+import json, os, re, sys
 
 import bpy
 from mathutils import Matrix, Vector
@@ -20,6 +22,7 @@ argv = sys.argv[sys.argv.index("--") + 1:]
 src, out_fbx = os.path.abspath(argv[0]), os.path.abspath(argv[1])
 skel_name = argv[argv.index("--skeleton") + 1] if "--skeleton" in argv else None
 with_caps = "--caps" in argv
+names_from = [os.path.abspath(argv[i + 1]) for i, a in enumerate(argv) if a == "--names-from"]
 model = os.path.basename(os.path.normpath(src))
 
 Y_UP_TO_Z_UP = Matrix(((1, 0, 0, 0), (0, 0, -1, 0), (0, 1, 0, 0), (0, 0, 0, 1)))
@@ -33,7 +36,10 @@ skel = skels[skel_name] if skel_name else rcb["skeletons"][-1]
 geos = ds2_geo.load_stream_geos(src)
 
 hashes = {b["rcb_index"]: b["hash"] for g in geos.values() for b in g["bones"]}
-hkx = b"".join(open(os.path.join(src, "HKX", f), "rb").read() for f in os.listdir(os.path.join(src, "HKX")))
+hkx = b"".join(open(os.path.join(d, "HKX", f), "rb").read()
+               for d in [src, *names_from] if os.path.isdir(os.path.join(d, "HKX")) for f in os.listdir(os.path.join(d, "HKX")))
+known = os.path.join(os.path.dirname(os.path.abspath(__file__)), "ds2_bone_names.txt")
+hkx += b" " + b" ".join(l.strip().encode() for l in open(known, encoding="utf-8") if l.strip() and not l.startswith("#"))
 by_hash = ds2_geo.hkx_bone_names(hkx, set(hashes.values()))
 names = [by_hash.get(hashes.get(i), f"bone_{i:02d}") for i in range(len(skel["parents"]))]
 print(f"[ds2] skeleton {skel['name']}: {len(names)} bones, {sum(1 for n in names if not n.startswith('bone_'))} named")
@@ -86,7 +92,13 @@ c = tex("c", "sRGB")
 if c:
     nt.links.new(c.outputs["Color"], bsdf.inputs["Base Color"])
 n = tex("n", "Non-Color")
-if n:  # DXT5_NM: X in alpha, Y in green, Z rebuilt
+fmt_path = os.path.join(dds, "formats.json")
+n_fmt = json.load(open(fmt_path)).get(f"{model}_n", "DXT5_NM") if os.path.exists(fmt_path) else "DXT5_NM"
+if n and not n_fmt.endswith("_NM"):  # plain RGB normal map
+    nmap = nt.nodes.new("ShaderNodeNormalMap")
+    nt.links.new(n.outputs["Color"], nmap.inputs["Color"])
+    nt.links.new(nmap.outputs["Normal"], bsdf.inputs["Normal"])
+elif n:  # DXT5_NM: X in alpha, Y in green, Z rebuilt
     sep = nt.nodes.new("ShaderNodeSeparateColor")
     comb = nt.nodes.new("ShaderNodeCombineColor")
     nt.links.new(n.outputs["Color"], sep.inputs["Color"])
@@ -96,14 +108,14 @@ if n:  # DXT5_NM: X in alpha, Y in green, Z rebuilt
     nmap = nt.nodes.new("ShaderNodeNormalMap")
     nt.links.new(comb.outputs["Color"], nmap.inputs["Color"])
     nt.links.new(nmap.outputs["Normal"], bsdf.inputs["Normal"])
-sp = tex("sp", "Non-Color")
+sp = tex("sp", "Non-Color") or tex("s", "Non-Color")  # specular is _sp on Slashers, _s on the Pack
 if sp:
     nt.links.new(sp.outputs["Color"], bsdf.inputs["Specular IOR Level"])
 
 # ---- meshes ----------------------------------------------------------------------------------------
 pieces = 0
 for key, g in geos.items():
-    if not with_caps and re.search(r"_(pc|sc)_dism", key):
+    if not with_caps and re.search(r"_(pc|sc)_dism|_cap_", key):  # wound caps (Slasher _pc/_sc, Pack *_cap_*)
         continue
     for m in g["meshes"]:
         name = m["name"].replace("Shape", "")

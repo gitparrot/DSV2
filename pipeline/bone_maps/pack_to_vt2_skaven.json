@@ -1,0 +1,296 @@
+{
+ "about": "How pipeline/rig_onto_host.py fits The Pack (Dead Space 2 child necromorph, skeleton 'pack', 49 joints) onto a Vermintide 2 Skaven rat skeleton (j_* joints, e.g. skaven_slave). Unnamed DS2 joints keep their rcb index: bone_04/bone_07 spine, bone_11 back, bone_21 head, bone_23/24 upper arms, bone_27/28 wrist twists, bone_01 ground marker. Same fields as slasher_to_vt2_human.json.",
+ "fields": {
+  "weights": "host joint that gets this bone's vertex weights. If that host does not link it (pipeline/bones/<breed>.txt), rig_onto_host.py uses a linked child at the same spot, else the nearest linked parent. A list gives alternatives for hosts without the first joint (rats: j_neck_1, j_jaw, no _roll joints); the first one the host has is used",
+  "head": "fit: move the bone's head to this host joint (or [joint_a, joint_b, t] = point between them)",
+  "stretch": "fit: stretch the bone so its tail reaches this host joint (changes the bone's length)",
+  "aim": "fit: turn the bone towards this host joint without changing its length",
+  "tail_to": "before fitting, point the bone's tail at this DS2 bone's head, so stretch/aim use the limb's real direction",
+  "rigid": "true: keep this part's own size even if its parent is stretched (heads, hands, blades)"
+ },
+ "rotate_z_degrees": 180,
+ "bones": {
+  "m_root": {
+   "weights": "j_hips"
+  },
+  "m_camera": {
+   "weights": "j_hips"
+  },
+  "bone_01": {
+   "weights": "j_hips"
+  },
+  "m_pelvis": {
+   "weights": "j_hips",
+   "head": "j_hips"
+  },
+  "bone_04": {
+   "weights": [
+    "j_spine_scale",
+    "j_spine"
+   ],
+   "head": "j_spine",
+   "stretch": "j_spine1",
+   "tail_to": "bone_07"
+  },
+  "bone_07": {
+   "weights": "j_spine1",
+   "head": "j_spine1",
+   "stretch": "j_neck",
+   "tail_to": "m_neck1"
+  },
+  "bone_11": {
+   "weights": "j_spine1",
+   "rigid": true
+  },
+  "m_neck1": {
+   "weights": "j_neck",
+   "head": "j_neck",
+   "stretch": "j_neck_1",
+   "tail_to": "m_neck2"
+  },
+  "m_neck2": {
+   "weights": [
+    "j_neck_1",
+    "j_neck_scale"
+   ],
+   "head": "j_neck_1",
+   "stretch": "j_head",
+   "tail_to": "bone_21"
+  },
+  "bone_21": {
+   "weights": "j_head",
+   "head": "j_head",
+   "rigid": true
+  },
+  "m_jaw": {
+   "weights": [
+    "j_jaw",
+    "j_jaw_anim"
+   ]
+  },
+  "l_clav": {
+   "weights": "j_leftshoulder",
+   "head": "j_leftshoulder",
+   "stretch": "j_leftarm",
+   "tail_to": "l_shoulder"
+  },
+  "l_shoulder": {
+   "weights": "j_leftarm"
+  },
+  "bone_23": {
+   "weights": "j_leftarm",
+   "head": "j_leftarm",
+   "stretch": "j_leftforearm",
+   "tail_to": "l_elbow"
+  },
+  "l_elbow": {
+   "weights": "j_leftforearm",
+   "head": "j_leftforearm",
+   "stretch": "j_lefthand",
+   "tail_to": "bone_27"
+  },
+  "bone_27": {
+   "weights": [
+    "j_leftforearmroll",
+    "j_leftforearm_roll",
+    "j_leftforearm"
+   ]
+  },
+  "l_wrist": {
+   "weights": "j_lefthand",
+   "head": "j_lefthand",
+   "rigid": true
+  },
+  "l_finger1": {
+   "weights": [
+    "j_lefthandmiddle1",
+    "j_lefthand"
+   ]
+  },
+  "l_finger2": {
+   "weights": [
+    "j_lefthandmiddle2",
+    "j_lefthand"
+   ]
+  },
+  "l_finger3": {
+   "weights": [
+    "j_lefthandmiddle3",
+    "j_lefthand"
+   ]
+  },
+  "l_index1": {
+   "weights": [
+    "j_lefthandindex1",
+    "j_lefthand"
+   ]
+  },
+  "l_index2": {
+   "weights": [
+    "j_lefthandindex2",
+    "j_lefthand"
+   ]
+  },
+  "l_index3": {
+   "weights": [
+    "j_lefthandindex3",
+    "j_lefthand"
+   ]
+  },
+  "l_thumb1": {
+   "weights": [
+    "j_lefthandthumb1",
+    "j_lefthand"
+   ]
+  },
+  "l_thumb2": {
+   "weights": [
+    "j_lefthandthumb2",
+    "j_lefthand"
+   ]
+  },
+  "l_thumb3": {
+   "weights": [
+    "j_lefthandthumb3",
+    "j_lefthand"
+   ]
+  },
+  "l_hip": {
+   "weights": [
+    "j_leftupleg",
+    "j_leftupleg_scale"
+   ],
+   "head": "j_leftupleg",
+   "stretch": "j_leftleg",
+   "tail_to": "l_knee"
+  },
+  "l_knee": {
+   "weights": "j_leftleg",
+   "head": "j_leftleg",
+   "stretch": "j_leftfoot",
+   "tail_to": "l_ankle"
+  },
+  "l_ankle": {
+   "weights": "j_leftfoot",
+   "head": "j_leftfoot",
+   "aim": "j_lefttoebase",
+   "tail_to": "l_ball",
+   "rigid": true
+  },
+  "l_ball": {
+   "weights": "j_lefttoebase"
+  },
+  "r_clav": {
+   "weights": "j_rightshoulder",
+   "head": "j_rightshoulder",
+   "stretch": "j_rightarm",
+   "tail_to": "r_shoulder"
+  },
+  "r_shoulder": {
+   "weights": "j_rightarm"
+  },
+  "bone_24": {
+   "weights": "j_rightarm",
+   "head": "j_rightarm",
+   "stretch": "j_rightforearm",
+   "tail_to": "r_elbow"
+  },
+  "r_elbow": {
+   "weights": "j_rightforearm",
+   "head": "j_rightforearm",
+   "stretch": "j_righthand",
+   "tail_to": "bone_28"
+  },
+  "bone_28": {
+   "weights": [
+    "j_rightforearmroll",
+    "j_rightforearm_roll",
+    "j_rightforearm"
+   ]
+  },
+  "r_wrist": {
+   "weights": "j_righthand",
+   "head": "j_righthand",
+   "rigid": true
+  },
+  "r_finger1": {
+   "weights": [
+    "j_righthandmiddle1",
+    "j_righthand"
+   ]
+  },
+  "r_finger2": {
+   "weights": [
+    "j_righthandmiddle2",
+    "j_righthand"
+   ]
+  },
+  "r_finger3": {
+   "weights": [
+    "j_righthandmiddle3",
+    "j_righthand"
+   ]
+  },
+  "r_index1": {
+   "weights": [
+    "j_righthandindex1",
+    "j_righthand"
+   ]
+  },
+  "r_index2": {
+   "weights": [
+    "j_righthandindex2",
+    "j_righthand"
+   ]
+  },
+  "r_index3": {
+   "weights": [
+    "j_righthandindex3",
+    "j_righthand"
+   ]
+  },
+  "r_thumb1": {
+   "weights": [
+    "j_righthandthumb1",
+    "j_righthand"
+   ]
+  },
+  "r_thumb2": {
+   "weights": [
+    "j_righthandthumb2",
+    "j_righthand"
+   ]
+  },
+  "r_thumb3": {
+   "weights": [
+    "j_righthandthumb3",
+    "j_righthand"
+   ]
+  },
+  "r_hip": {
+   "weights": [
+    "j_rightupleg",
+    "j_rightupleg_scale"
+   ],
+   "head": "j_rightupleg",
+   "stretch": "j_rightleg",
+   "tail_to": "r_knee"
+  },
+  "r_knee": {
+   "weights": "j_rightleg",
+   "head": "j_rightleg",
+   "stretch": "j_rightfoot",
+   "tail_to": "r_ankle"
+  },
+  "r_ankle": {
+   "weights": "j_rightfoot",
+   "head": "j_rightfoot",
+   "aim": "j_righttoebase",
+   "tail_to": "r_ball",
+   "rigid": true
+  },
+  "r_ball": {
+   "weights": "j_righttoebase"
+  }
+ }
+}

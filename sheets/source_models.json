@@ -24,15 +24,15 @@
    "role": "armoured grunt",
    "ds2_archive": "DS2DAT9.DAT entry 0xCDE7B5D8: chars\\superslasher (char_str\\npc\\zomb_cct\\super_slasher)",
    "export_file": "ds2_export/enhanced_slasher.fbx",
-   "extracted": false
+   "extracted": true
   },
   {
    "id": "pack",
    "ds2_name": "The Pack (child necromorph)",
    "role": "small fast swarm",
-   "ds2_archive": "TODO_PC",
+   "ds2_archive": "DS2DAT9.DAT entry 0x7DDED5DE: chars pack_boy (char_str\\npc\\pack_boy_cct), skeleton pack; also pack_girl 0xD7E56E54, pack_boy_dementia 0xB27D3C30",
    "export_file": "ds2_export/pack.fbx",
-   "extracted": false
+   "extracted": true
   },
   {
    "id": "twitcher",

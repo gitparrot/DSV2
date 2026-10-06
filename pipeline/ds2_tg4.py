@@ -123,6 +123,9 @@ def convert_dir(unpacked_dir, out_dir, png=False):
             write_png(os.path.join(out_dir, name + ".png"), w, h, rgba)
         done[name] = (path, fmt)
         print(f"{path} ({fmt}){' + .png' if png else ''}")
+    import json
+    with open(os.path.join(out_dir, "formats.json"), "w", encoding="utf-8") as f:
+        json.dump({k: v[1] for k, v in done.items()}, f, indent=1)  # read by make_sdk_unit.py / ds2_to_fbx.py
     return done
 
 

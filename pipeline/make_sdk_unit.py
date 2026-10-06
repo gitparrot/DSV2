@@ -10,7 +10,8 @@ Layout written under <mod>/units/dsv2/<id>/ (resource name units/dsv2/<id>/<id>,
 The SDK compiler imports the .fbx that shares the unit's name (skinned; it has its own FBX importer).
 Mesh and material names come from the <fbx>.json sidecar written by pipeline/rig_onto_host.py.
 Material: core standard_base (skinned by default) with base colour = _c (sRGB), normal = _n
-(DXT5_NM: X in alpha, Y in green, Z rebuilt by decode_normal), roughness = 1 - _sp.r.
+(DXT5_NM: X in alpha, Y in green, Z rebuilt by decode_normal; plain RGB normal maps per the formats.json that
+ds2_tg4.py writes), roughness = 1 - _sp.r.
 """
 import argparse, json, os, shutil, uuid
 
@@ -21,7 +22,7 @@ OPT = {"wrap": "5dd59b3d-1762-4a14-9930-7500230ef3db", "aniso": "1e067464-12d8-4
        "linear": "e94e53e6-49b6-4194-a747-8f064a5932e0"}
 IN = {"texcoord": "1ee9af1f-65f2-4739-ad28-5ea6a0e68fc3", "base_color": "aca690cb-6305-4a2f-bf3d-69183a493db3",
       "normal": "b1c86408-aacb-4466-b754-ddcf37a3a2c8", "roughness": "36ba46d2-f6ea-4e60-a428-fdc17c75bc62",
-      "normal2": "e796d926-3c92-46c5-8aa4-0351529e310e", "invert_a": "DB6BAC1D-3931-42BD-BD08-829BFBCBAD47"}
+      "normal2": "e796d926-3c92-46c5-8aa4-0351529e310e", "normal3": "e53657b4-36f9-48d5-8bfd-572552b56fdf", "invert_a": "DB6BAC1D-3931-42BD-BD08-829BFBCBAD47"}
 
 
 def sjson(v, ind=0):
@@ -62,7 +63,7 @@ def sampler(nid, slot, title, encoding, y):
                 {"texture_map": {"display_name": title, "slot_name": slot, "sort_tag": -1}}, title)
 
 
-def material(res_dir, ident):
+def material(res_dir, ident, normal_fmt="DXT5_NM"):
     slots = {"texture_map_df": f"{res_dir}/{ident}_df", "texture_map_nm": f"{res_dir}/{ident}_nm",
              "texture_map_sp": f"{res_dir}/{ident}_sp"}
     nodes = [node(UV, "core/shader_nodes/texture_coordinate0", -460, 260),
@@ -73,7 +74,8 @@ def material(res_dir, ident):
              node(INV, "core/shader_nodes/invert", 100, 300),
              node(OUT, "core/stingray_renderer/output_nodes/standard_base", 400, 200)]
     conns = [link(UV, s, IN["texcoord"]) for s in (DF, NM, SP)]
-    conns += [link(DF, OUT, IN["base_color"], "rgb"), link(NM, DEC, IN["normal2"], "ag"),
+    nm_link = link(NM, DEC, IN["normal2"], "ag") if normal_fmt.endswith("_NM") else link(NM, DEC, IN["normal3"], "rgb")
+    conns += [link(DF, OUT, IN["base_color"], "rgb"), nm_link,
               link(DEC, OUT, IN["normal"]), link(SP, INV, IN["invert_a"], "r"), link(INV, OUT, IN["roughness"])]
     return top({"material_contexts": {"surface_material": "flesh"},
                 "shader": {"connections": conns, "constants": [], "nodes": nodes, "version": 2},
@@ -109,9 +111,14 @@ def main():
     os.makedirs(out, exist_ok=True)
     w = lambda name, text: open(os.path.join(out, name), "w", encoding="utf-8", newline="\n").write(text)
     w(f"{a.id}.unit", unit(info["meshes"], info["materials"], f"{res_dir}/{a.id}"))
-    w(f"{a.id}.material", material(res_dir, a.id))
+    fmt_path = os.path.join(os.path.dirname(a.textures), "formats.json")
+    formats = json.load(open(fmt_path)) if os.path.exists(fmt_path) else {}
+    normal_fmt = formats.get(os.path.basename(a.textures) + "_n", "DXT5_NM")
+    w(f"{a.id}.material", material(res_dir, a.id, normal_fmt))
     for suffix, src, fmt, srgb in (("df", "c", "DXT1", True), ("nm", "n", "DXT5", False), ("sp", "sp", "DXT1", False)):
         w(f"{a.id}_{suffix}.texture", texture(f"{res_dir}/{a.id}_{suffix}", fmt, srgb))
+        if src == "sp" and not os.path.exists(f"{a.textures}_sp.png"):
+            src = "s"  # the Pack names its specular map _s
         shutil.copyfile(f"{a.textures}_{src}.png", os.path.join(out, f"{a.id}_{suffix}.png"))
     shutil.copyfile(a.fbx, os.path.join(out, f"{a.id}.fbx"))
     print(f"wrote {res_dir}/{a.id}.unit (+ material, 3 textures; fbx/png copied, git-ignored) in {a.mod}")

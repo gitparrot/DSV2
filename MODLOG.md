@@ -150,6 +150,17 @@ slasher_marauder_shield, enhanced_stormvermin_shield/commander; generate.py list
 - Rigged and built: slasher_marauder (+shield), slasher_clanrat (+shield). Clan rat fit: hunched, crouched on the
   rat's bent legs; posed test deforms cleanly. Not yet seen in game.
 
+- **Raider -> Enhanced Slasher** (`chars\superslasher`, DAT9 0xCDE7B5D8): same zombieb skeleton and bone hashes as
+  the Slasher, but its .hkx lacks the joint names, so `ds2_to_fbx.py --names-from extracted/ds2/slasherhospital`.
+  Its normal map is plain DXT1 RGB (not DXT5_NM): `ds2_tg4.py` now writes `formats.json` and the material/preview
+  decode RGB normals accordingly. Rigged with the human map (stand-ins j_jaw_anim->j_head, j_neck->j_neck_scale).
+- **Slave Rat -> The Pack** (`pack_boy`, DAT9 0x7DDED5DE): own 49-joint skeleton "pack"; names are not in any
+  string, 40 found by hashing guesses (`pipeline/ds2_bone_names.txt`), the other 9 keep rcb indices (bone_04/07
+  spine, bone_21 head, bone_23/24 upper arms, bone_27/28 wrist twists, bone_11 back). New map
+  `pack_to_vt2_skaven.json`. Its `00` and `_tc` pieces are body parts (neck, limb joints), only `*_cap_*` are wound
+  caps. Specular is `_s`, not `_sp`. Looks lanky: a child stretched to the slave rat's height.
+- Built: 5 skin units (Fanatic, Clan Rat, Marauder, Raider, Slave) cover 9 breeds with the variants. Not yet seen in game.
+
 ## Open questions (block the first in-game build)
 1. Look and feel still to judge: blade arms vs the Fanatic's swings, the forward-jutting jaw, the torch flame that
    still shows (it's the hidden torch item's effect), and dismemberment.

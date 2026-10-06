@@ -1,0 +1,37 @@
+{
+ "sheet": "props",
+ "about": "Non-creature swaps: spawned props that get a Dead Space look.",
+ "columns": {
+  "id": "key",
+  "source_model": "-> source_models.id",
+  "unit_template": "unit template name the game spawns it with",
+  "host_unit": "the game's own unit",
+  "host_source": "where it is spawned in the game's Lua",
+  "skin_unit": "our unit",
+  "link_nodes": "list of [host_node, skin_node] pairs; node 0 is always the root",
+  "scale": "uniform scale",
+  "setting": "-> settings.id",
+  "rigged": "true once imported in the SDK",
+  "tested_in_game": "true once seen in game"
+ },
+ "rows": [
+  {
+   "id": "marker_banner",
+   "source_model": "marker_shard",
+   "unit_template": "standard_unit",
+   "host_unit": "units/weapons/enemy/wpn_bm_standard_01/wpn_bm_standard_01_placed",
+   "host_source": "vt2src scripts/entity_system/systems/behaviour/nodes/bt_place_standard_action.lua:118-119",
+   "skin_unit": "units/dsv2/marker_banner/marker_banner",
+   "link_nodes": [
+    [
+     0,
+     0
+    ]
+   ],
+   "scale": 1.0,
+   "setting": "marker_banner",
+   "rigged": false,
+   "tested_in_game": false
+  }
+ ]
+}

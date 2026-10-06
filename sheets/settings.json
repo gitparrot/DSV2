@@ -1,0 +1,41 @@
+{
+ "sheet": "settings",
+ "about": "In-game toggles (VMF mod options).",
+ "columns": {
+  "id": "setting id",
+  "type": "checkbox",
+  "default": "default value",
+  "title": "label in the options menu",
+  "tooltip": "help text"
+ },
+ "rows": [
+  {
+   "id": "faction_chaos",
+   "type": "checkbox",
+   "default": true,
+   "title": "Chaos become Necromorphs",
+   "tooltip": "Slashers, Enhanced Slashers, Infector, Tripod, Ubermorph, Divider. Applies to enemies that spawn after you change it."
+  },
+  {
+   "id": "faction_skaven",
+   "type": "checkbox",
+   "default": true,
+   "title": "Skaven become Necromorphs",
+   "tooltip": "The Pack, Twitchers, Leapers, Exploders, Pukers, Lurkers, Brute variant. Applies to enemies that spawn after you change it."
+  },
+  {
+   "id": "faction_beastmen",
+   "type": "checkbox",
+   "default": true,
+   "title": "Beastmen become Necromorphs",
+   "tooltip": "Slashers, the Pack, Stalkers, Spitters, Brute. Applies to enemies that spawn after you change it."
+  },
+  {
+   "id": "marker_banner",
+   "type": "checkbox",
+   "default": true,
+   "title": "Marker banners",
+   "tooltip": "Beastmen war banners become Marker shards. Applies to enemies that spawn after you change it."
+  }
+ ]
+}

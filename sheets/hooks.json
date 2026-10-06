@@ -1,0 +1,46 @@
+{
+ "sheet": "hooks",
+ "about": "Every place the mod touches the game. Line numbers are from the reference source; re-check them against the installed game version.",
+ "columns": {
+  "id": "key",
+  "target": "Class.function hooked",
+  "kind": "hook_safe (runs after, can't change result) / update",
+  "source": "where it is defined",
+  "purpose": "why",
+  "tested_in_game": "true once verified"
+ },
+ "rows": [
+  {
+   "id": "on_extensions_created",
+   "target": "UnitSpawner.create_unit_extensions",
+   "kind": "hook_safe",
+   "source": "vt2src scripts/network/unit_spawner.lua:309",
+   "purpose": "Every enemy (host spawn and client husk) and every placed banner passes here; queue the unit to be skinned next frame once its breed data is set.",
+   "tested_in_game": false
+  },
+  {
+   "id": "on_unfreeze",
+   "target": "BreedFreezer.unfreeze_unit",
+   "kind": "hook_safe",
+   "source": "vt2src scripts/managers/conflict_director/breed_freezer.lua:450 (sets visibility true at :465)",
+   "purpose": "Pooled enemies are made visible again when reused; hide the original model again.",
+   "tested_in_game": false
+  },
+  {
+   "id": "on_destroy",
+   "target": "UnitSpawner.add_destroy_listener",
+   "kind": "listener",
+   "source": "vt2src scripts/network/unit_spawner.lua:509",
+   "purpose": "Delete our skin when its enemy is removed.",
+   "tested_in_game": false
+  },
+  {
+   "id": "skin_queue",
+   "target": "mod.update",
+   "kind": "update",
+   "source": "VMF mod callback",
+   "purpose": "Apply queued skins one frame after spawn.",
+   "tested_in_game": false
+  }
+ ]
+}

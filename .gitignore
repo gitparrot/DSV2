@@ -1,0 +1,12 @@
+# Dead Space 2 assets are extracted from your own copy and must never be committed or shared.
+extracted/
+ds2_export/
+*.fbx
+*.dds
+*.blend
+*.blend1
+# SDK / builder output
+mod/dsv2/bundleV2/
+mod/dsv2/.temp/
+*.mod_bundle
+__pycache__/

@@ -1,0 +1,142 @@
+{
+ "sheet": "source_models",
+ "about": "Dead Space 2 models taken from the player's OWN install. Never committed or shared (.gitignore).",
+ "columns": {
+  "id": "key",
+  "ds2_name": "name in Dead Space 2",
+  "role": "what it does in the mashup",
+  "ds2_archive": "archive/file inside the Dead Space 2 folder that holds it (found on PC)",
+  "export_file": "FBX exported from Dead Space 2 (git-ignored)",
+  "extracted": "true once the FBX opens in Blender with textures"
+ },
+ "rows": [
+  {
+   "id": "slasher",
+   "ds2_name": "Slasher",
+   "role": "basic melee horde",
+   "ds2_archive": "TODO_PC",
+   "export_file": "ds2_export/slasher.fbx",
+   "extracted": false
+  },
+  {
+   "id": "enhanced_slasher",
+   "ds2_name": "Enhanced Slasher",
+   "role": "armoured grunt",
+   "ds2_archive": "TODO_PC",
+   "export_file": "ds2_export/enhanced_slasher.fbx",
+   "extracted": false
+  },
+  {
+   "id": "pack",
+   "ds2_name": "The Pack (child necromorph)",
+   "role": "small fast swarm",
+   "ds2_archive": "TODO_PC",
+   "export_file": "ds2_export/pack.fbx",
+   "extracted": false
+  },
+  {
+   "id": "twitcher",
+   "ds2_name": "Twitcher",
+   "role": "frenzied blade flurries",
+   "ds2_archive": "TODO_PC",
+   "export_file": "ds2_export/twitcher.fbx",
+   "extracted": false
+  },
+  {
+   "id": "leaper",
+   "ds2_name": "Leaper",
+   "role": "pounce and pin",
+   "ds2_archive": "TODO_PC",
+   "export_file": "ds2_export/leaper.fbx",
+   "extracted": false
+  },
+  {
+   "id": "stalker",
+   "ds2_name": "Stalker",
+   "role": "charge and knockdown",
+   "ds2_archive": "TODO_PC",
+   "export_file": "ds2_export/stalker.fbx",
+   "extracted": false
+  },
+  {
+   "id": "exploder",
+   "ds2_name": "Exploder",
+   "role": "suicide runner",
+   "ds2_archive": "TODO_PC",
+   "export_file": "ds2_export/exploder.fbx",
+   "extracted": false
+  },
+  {
+   "id": "puker",
+   "ds2_name": "Puker",
+   "role": "close-range spew",
+   "ds2_archive": "TODO_PC",
+   "export_file": "ds2_export/puker.fbx",
+   "extracted": false
+  },
+  {
+   "id": "lurker",
+   "ds2_name": "Lurker",
+   "role": "ranged spray",
+   "ds2_archive": "TODO_PC",
+   "export_file": "ds2_export/lurker.fbx",
+   "extracted": false
+  },
+  {
+   "id": "spitter",
+   "ds2_name": "Spitter",
+   "role": "ranged spit",
+   "ds2_archive": "TODO_PC",
+   "export_file": "ds2_export/spitter.fbx",
+   "extracted": false
+  },
+  {
+   "id": "infector",
+   "ds2_name": "Infector",
+   "role": "caster that grabs",
+   "ds2_archive": "TODO_PC",
+   "export_file": "ds2_export/infector.fbx",
+   "extracted": false
+  },
+  {
+   "id": "brute",
+   "ds2_name": "Brute",
+   "role": "charging monster",
+   "ds2_archive": "TODO_PC",
+   "export_file": "ds2_export/brute.fbx",
+   "extracted": false
+  },
+  {
+   "id": "tripod",
+   "ds2_name": "Tripod",
+   "role": "grab-and-pull monster",
+   "ds2_archive": "TODO_PC",
+   "export_file": "ds2_export/tripod.fbx",
+   "extracted": false
+  },
+  {
+   "id": "ubermorph",
+   "ds2_name": "Ubermorph",
+   "role": "regenerating monster",
+   "ds2_archive": "TODO_PC",
+   "export_file": "ds2_export/ubermorph.fbx",
+   "extracted": false
+  },
+  {
+   "id": "divider",
+   "ds2_name": "Divider",
+   "role": "tall armoured elite",
+   "ds2_archive": "TODO_PC",
+   "export_file": "ds2_export/divider.fbx",
+   "extracted": false
+  },
+  {
+   "id": "marker_shard",
+   "ds2_name": "Marker shard (prop)",
+   "role": "banner replacement",
+   "ds2_archive": "TODO_PC",
+   "export_file": "ds2_export/marker_shard.fbx",
+   "extracted": false
+  }
+ ]
+}

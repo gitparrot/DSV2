@@ -138,6 +138,18 @@ Log: `slasher_fanatic: first skin ... 99/99 bones linked, 99 rest scales restore
 "no bone list yet" as expected. `enemy_skins.slasher_fanatic.tested_in_game` = true. Slasher on the Fanatic is
 done end to end; the remaining rows repeat steps 3-5 (Marauder and Gor can reuse the human bone map).
 
+**Most common enemies first (owner's priority, 2026-10-06).** Owner's picks (asked for "easiest"): Clan Rats ->
+regular Slasher (already extracted); variants (shield Clan Rat/Marauder, shield/commander Stormvermin) -> same skin
+as the base enemy (same base_unit, so the same rigged unit). New sheet rows: slasher_clanrat(_shield),
+slasher_marauder_shield, enhanced_stormvermin_shield/commander; generate.py lists a shared skin unit once.
+- Step 4 done for clan rat, slave rat, marauder, raider (bundles from the dictionary: resource_packages/breeds/<breed>).
+  Marauder/raider: same 129-joint human skeleton as the Fanatic. Rats: same j_* names (plus tail, j_neck_1, j_jaw),
+  but they skin the `_scale` child (j_leftupleg_scale) instead of j_leftupleg and have no _roll joints.
+- rig_onto_host.py now substitutes unlinked weight joints (linked child at the same spot, else nearest linked parent)
+  and the bone map accepts lists of alternatives, so slasher_to_vt2_human.json serves Fanatic, Marauder and Clan Rat.
+- Rigged and built: slasher_marauder (+shield), slasher_clanrat (+shield). Clan rat fit: hunched, crouched on the
+  rat's bent legs; posed test deforms cleanly. Not yet seen in game.
+
 ## Open questions (block the first in-game build)
 1. Look and feel still to judge: blade arms vs the Fanatic's swings, the forward-jutting jaw, the torch flame that
    still shows (it's the hidden torch item's effect), and dismemberment.

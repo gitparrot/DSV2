@@ -1,0 +1,289 @@
+# chr_chaos_marauder.unit via Bitsquid Blender Tools 0.8.4, fix_bones=True
+# Bones to link (one per line): the 115 joints the enemy's own skin is weighted to,
+# depth-first. Rig the Necromorph onto these.
+j_hips
+j_belt1_dynamic
+j_belt5_parent
+j_front_cloth1_01_parent
+j_front_cloth1_01_dynamic
+j_front_cloth1_02_dynamic
+j_front_cloth1_03_dynamic
+j_leftupleg
+j_leftleg
+j_leftfoot
+j_lefttoebase
+j_leftkneepad_dynamic
+j_leftleg_roll
+j_leftpant1_dynamic
+j_rightupleg
+j_belt2_dynamic
+j_belt3_parent
+j_belt4_parent
+j_rightleg
+j_rightfoot
+j_righttoebase
+j_rightkneepad_dynamic
+j_rightleg_roll
+j_rightpant1_parent
+j_skull1_dynamic
+j_skull2_dynamic
+j_spine
+j_spine_scale
+j_belly_parent
+j_belly_dynamic
+j_spine1
+j_leftshoulder
+j_leftarm
+j_leftarm_scale
+j_leftarm_roll
+j_leftforearm
+j_leftforearm_roll
+j_lefthand
+j_lefthandthumb1
+j_lefthandthumb2
+j_lefthandthumb3
+j_leftinhandindex
+j_lefthandindex1
+j_lefthandindex2
+j_lefthandindex3
+j_leftinhandmiddle
+j_lefthandmiddle1
+j_lefthandmiddle2
+j_lefthandmiddle3
+j_leftinhandpinky
+j_lefthandpinky1
+j_lefthandpinky2
+j_lefthandpinky3
+j_leftinhandring
+j_lefthandring1
+j_lefthandring2
+j_lefthandring3
+j_neck
+j_neck_scale
+j_head
+j_jaw_anim
+j_chin_anim
+j_lowerlipcenter_anim
+j_lowerlipleft1_anim
+j_lowerlipright1_anim
+j_tongue_01
+j_tongue_02
+j_tongue_03
+j_leftcheek_01_anim
+j_leftcrease_01_anim
+j_lefteye
+j_lefteyebrowinner_anim
+j_lefteyebrowmid_anim
+j_lefteyebrowouter_anim
+j_lefteyelidlow_anim
+j_lefteyelidup_anim
+j_leftsnarl_01_anim
+j_rightcheek_01_anim
+j_rightcrease_01_anim
+j_righteye
+j_righteyebrowinner_anim
+j_righteyebrowmid_anim
+j_righteyebrowouter_anim
+j_righteyelidlow_anim
+j_righteyelidup_anim
+j_rightsnarl_01_anim
+j_upperlipcenter_anim
+j_upperlipleftcorner_anim
+j_upperliprightcorner_anim
+j_rightshoulder
+j_rightarm
+j_rightarm_scale
+j_rightarm_roll
+j_rightforearm
+j_rightforearm_roll
+j_righthand
+j_righthandthumb1
+j_righthandthumb2
+j_righthandthumb3
+j_rightinhandindex
+j_righthandindex1
+j_righthandindex2
+j_righthandindex3
+j_rightinhandmiddle
+j_righthandmiddle1
+j_righthandmiddle2
+j_righthandmiddle3
+j_rightinhandpinky
+j_righthandpinky1
+j_righthandpinky2
+j_righthandpinky3
+j_rightinhandring
+j_righthandring1
+j_righthandring2
+j_righthandring3
+#
+# Full scene graph (168 nodes, 129 joints; 'Guess joints' import):
+# name<TAB>parent<TAB>joint|node[,skinned]
+# root_point	-	joint
+# aim_target	root_point	joint
+# j_hips	root_point	joint,skinned
+# j_belt1_parent	j_hips	joint
+# j_belt1_dynamic	j_belt1_parent	joint,skinned
+# j_belt5_parent	j_hips	joint,skinned
+# j_belt5_dynamic	j_belt5_parent	joint
+# j_front_cloth1_01_parent	j_hips	joint,skinned
+# j_front_cloth1_01_dynamic	j_front_cloth1_01_parent	joint,skinned
+# j_front_cloth1_02_parent	j_front_cloth1_01_dynamic	joint
+# j_front_cloth1_02_dynamic	j_front_cloth1_02_parent	joint,skinned
+# j_front_cloth1_03_parent	j_front_cloth1_02_dynamic	joint
+# j_front_cloth1_03_dynamic	j_front_cloth1_03_parent	joint,skinned
+# j_leftupleg	j_hips	joint,skinned
+# j_leftleg	j_leftupleg	joint,skinned
+# j_leftfoot	j_leftleg	joint,skinned
+# j_lefttoebase	j_leftfoot	joint,skinned
+# j_lefttoebase_end	j_lefttoebase	node
+# j_leftkneepad_parent	j_leftleg	joint
+# j_leftkneepad_dynamic	j_leftkneepad_parent	joint,skinned
+# j_leftleg_roll	j_leftleg	joint,skinned
+# j_leftpant1_parent	j_leftupleg	joint
+# j_leftpant1_dynamic	j_leftpant1_parent	joint,skinned
+# j_rightupleg	j_hips	joint,skinned
+# j_belt2_parent	j_rightupleg	joint
+# j_belt2_dynamic	j_belt2_parent	joint,skinned
+# j_belt3_parent	j_rightupleg	joint,skinned
+# j_belt3_dynamic	j_belt3_parent	joint
+# j_belt4_parent	j_rightupleg	joint,skinned
+# j_belt4_dynamic	j_belt4_parent	joint
+# j_rightleg	j_rightupleg	joint,skinned
+# j_rightfoot	j_rightleg	joint,skinned
+# j_righttoebase	j_rightfoot	joint,skinned
+# j_righttoebase_end	j_righttoebase	node
+# j_rightkneepad_parent	j_rightleg	joint
+# j_rightkneepad_dynamic	j_rightkneepad_parent	joint,skinned
+# j_rightleg_roll	j_rightleg	joint,skinned
+# j_rightpant1_parent	j_rightupleg	joint,skinned
+# j_rightpant1_dynamic	j_rightpant1_parent	joint
+# j_skull1_parent	j_hips	joint
+# j_skull1_dynamic	j_skull1_parent	joint,skinned
+# j_skull2_parent	j_hips	joint
+# j_skull2_dynamic	j_skull2_parent	joint,skinned
+# j_spine	j_hips	joint,skinned
+# j_spine_scale	j_spine	node,skinned
+# j_belly_parent	j_spine_scale	joint,skinned
+# j_belly_dynamic	j_belly_parent	joint,skinned
+# j_spine1	j_spine_scale	joint,skinned
+# j_leftshoulder	j_spine1	joint,skinned
+# j_leftarm	j_leftshoulder	joint,skinned
+# j_leftarm_scale	j_leftarm	node,skinned
+# j_leftarm_roll	j_leftarm_scale	joint,skinned
+# j_leftforearm	j_leftarm_scale	joint,skinned
+# j_leftforearm_roll	j_leftforearm	joint,skinned
+# j_lefthand	j_leftforearm	joint,skinned
+# j_lefthandthumb1	j_lefthand	joint,skinned
+# j_lefthandthumb2	j_lefthandthumb1	joint,skinned
+# j_lefthandthumb3	j_lefthandthumb2	joint,skinned
+# j_lefthandthumb4	j_lefthandthumb3	node
+# j_leftinhandindex	j_lefthand	joint,skinned
+# j_lefthandindex1	j_leftinhandindex	joint,skinned
+# j_lefthandindex2	j_lefthandindex1	joint,skinned
+# j_lefthandindex3	j_lefthandindex2	joint,skinned
+# j_lefthandindex4	j_lefthandindex3	node
+# j_leftinhandmiddle	j_lefthand	joint,skinned
+# j_lefthandmiddle1	j_leftinhandmiddle	joint,skinned
+# j_lefthandmiddle2	j_lefthandmiddle1	joint,skinned
+# j_lefthandmiddle3	j_lefthandmiddle2	joint,skinned
+# j_lefthandmiddle4	j_lefthandmiddle3	node
+# j_leftinhandpinky	j_lefthand	joint,skinned
+# j_lefthandpinky1	j_leftinhandpinky	joint,skinned
+# j_lefthandpinky2	j_lefthandpinky1	joint,skinned
+# j_lefthandpinky3	j_lefthandpinky2	joint,skinned
+# j_lefthandpinky4	j_lefthandpinky3	node
+# j_leftinhandring	j_lefthand	joint,skinned
+# j_lefthandring1	j_leftinhandring	joint,skinned
+# j_lefthandring2	j_lefthandring1	joint,skinned
+# j_lefthandring3	j_lefthandring2	joint,skinned
+# j_lefthandring4	j_lefthandring3	node
+# j_leftweaponattach	j_lefthand	joint
+# j_neck	j_spine1	joint,skinned
+# j_neck_scale	j_neck	node,skinned
+# j_head	j_neck_scale	joint,skinned
+# j_head_end	j_head	node
+# j_jaw_ref	j_head	node
+# j_jaw_anim	j_jaw_ref	joint,skinned
+# j_chin_ref	j_jaw_anim	node
+# j_chin_anim	j_chin_ref	joint,skinned
+# j_lowerlipcenter_ref	j_jaw_anim	node
+# j_lowerlipcenter_anim	j_lowerlipcenter_ref	joint,skinned
+# j_lowerlipleft1_ref	j_jaw_anim	node
+# j_lowerlipleft1_anim	j_lowerlipleft1_ref	joint,skinned
+# j_lowerlipright1_ref	j_jaw_anim	node
+# j_lowerlipright1_anim	j_lowerlipright1_ref	joint,skinned
+# j_tongue_01	j_jaw_anim	joint,skinned
+# j_tongue_02	j_tongue_01	joint,skinned
+# j_tongue_03	j_tongue_02	joint,skinned
+# j_tongue_04	j_tongue_03	joint
+# j_leftcheek_01_ref	j_head	node
+# j_leftcheek_01_anim	j_leftcheek_01_ref	joint,skinned
+# j_leftcrease_01_ref	j_head	node
+# j_leftcrease_01_anim	j_leftcrease_01_ref	joint,skinned
+# j_lefteye	j_head	joint,skinned
+# j_lefteyebrowinner_ref	j_head	node
+# j_lefteyebrowinner_anim	j_lefteyebrowinner_ref	joint,skinned
+# j_lefteyebrowmid_ref	j_head	node
+# j_lefteyebrowmid_anim	j_lefteyebrowmid_ref	joint,skinned
+# j_lefteyebrowouter_ref	j_head	node
+# j_lefteyebrowouter_anim	j_lefteyebrowouter_ref	joint,skinned
+# j_lefteyelid_ref	j_head	node
+# j_lefteyelidlow_anim	j_lefteyelid_ref	joint,skinned
+# j_lefteyelidup_anim	j_lefteyelid_ref	joint,skinned
+# j_leftsnarl_01_ref	j_head	node
+# j_leftsnarl_01_anim	j_leftsnarl_01_ref	joint,skinned
+# j_rightcheek_01_ref	j_head	node
+# j_rightcheek_01_anim	j_rightcheek_01_ref	joint,skinned
+# j_rightcrease_01_ref	j_head	node
+# j_rightcrease_01_anim	j_rightcrease_01_ref	joint,skinned
+# j_righteye	j_head	joint,skinned
+# j_righteyebrowinner_ref	j_head	node
+# j_righteyebrowinner_anim	j_righteyebrowinner_ref	joint,skinned
+# j_righteyebrowmid_ref	j_head	node
+# j_righteyebrowmid_anim	j_righteyebrowmid_ref	joint,skinned
+# j_righteyebrowouter_ref	j_head	node
+# j_righteyebrowouter_anim	j_righteyebrowouter_ref	joint,skinned
+# j_righteyelid_ref	j_head	node
+# j_righteyelidlow_anim	j_righteyelid_ref	joint,skinned
+# j_righteyelidup_anim	j_righteyelid_ref	joint,skinned
+# j_rightsnarl_01_ref	j_head	node
+# j_rightsnarl_01_anim	j_rightsnarl_01_ref	joint,skinned
+# j_upperlipcenter_ref	j_head	node
+# j_upperlipcenter_anim	j_upperlipcenter_ref	joint,skinned
+# j_upperlipleftcorner_ref	j_head	node
+# j_upperlipleftcorner_anim	j_upperlipleftcorner_ref	joint,skinned
+# j_upperliprightcorner_ref	j_head	node
+# j_upperliprightcorner_anim	j_upperliprightcorner_ref	joint,skinned
+# j_rightshoulder	j_spine1	joint,skinned
+# j_rightarm	j_rightshoulder	joint,skinned
+# j_rightarm_scale	j_rightarm	node,skinned
+# j_rightarm_roll	j_rightarm_scale	joint,skinned
+# j_rightforearm	j_rightarm_scale	joint,skinned
+# j_rightforearm_roll	j_rightforearm	joint,skinned
+# j_righthand	j_rightforearm	joint,skinned
+# j_righthandthumb1	j_righthand	joint,skinned
+# j_righthandthumb2	j_righthandthumb1	joint,skinned
+# j_righthandthumb3	j_righthandthumb2	joint,skinned
+# j_righthandthumb4	j_righthandthumb3	node
+# j_rightinhandindex	j_righthand	joint,skinned
+# j_righthandindex1	j_rightinhandindex	joint,skinned
+# j_righthandindex2	j_righthandindex1	joint,skinned
+# j_righthandindex3	j_righthandindex2	joint,skinned
+# j_righthandindex4	j_righthandindex3	node
+# j_rightinhandmiddle	j_righthand	joint,skinned
+# j_righthandmiddle1	j_rightinhandmiddle	joint,skinned
+# j_righthandmiddle2	j_righthandmiddle1	joint,skinned
+# j_righthandmiddle3	j_righthandmiddle2	joint,skinned
+# j_righthandmiddle4	j_righthandmiddle3	node
+# j_rightinhandpinky	j_righthand	joint,skinned
+# j_righthandpinky1	j_rightinhandpinky	joint,skinned
+# j_righthandpinky2	j_righthandpinky1	joint,skinned
+# j_righthandpinky3	j_righthandpinky2	joint,skinned
+# j_righthandpinky4	j_righthandpinky3	node
+# j_rightinhandring	j_righthand	joint,skinned
+# j_righthandring1	j_rightinhandring	joint,skinned
+# j_righthandring2	j_righthandring1	joint,skinned
+# j_righthandring3	j_righthandring2	joint,skinned
+# j_righthandring4	j_righthandring3	node
+# j_rightweaponattach	j_righthand	joint

@@ -52,9 +52,50 @@ if host_arm.matrix_world != Matrix.Identity(4):
     sys.exit("[rig] host armature has an object transform; expected identity")
 
 missing = [b.name for b in src_arm.data.bones if b.name not in bmap]
-bad = sorted({r["weights"] for r in bmap.values() if r["weights"] not in linked})
-if missing or bad:
-    sys.exit(f"[rig] map incomplete: no row for {missing}; weight targets not linked: {bad}")
+if missing:
+    sys.exit(f"[rig] map incomplete: no row for {missing}")
+
+
+def linked_target(name):
+    """The map's weight joint, or the linked joint that stands in for it on this host.
+
+    One map serves several enemies with the same joint names, but each body skins (and so links) a different subset:
+    the clan rat skins j_leftupleg_scale instead of j_leftupleg, a helmeted raider doesn't skin j_jaw_anim. Prefer a
+    linked child at the same spot (the _scale nodes), else the nearest linked parent."""
+    if name in linked:
+        return name
+    hb = host_arm.data.bones
+    bone = hb.get(name)
+    if bone is None:
+        sys.exit(f"[rig] weight joint {name} is not in the host skeleton")
+    queue = list(bone.children)
+    while queue:
+        c = queue.pop(0)
+        if (c.head_local - bone.head_local).length < 1e-3:
+            if c.name in linked:
+                return c.name
+            queue.extend(c.children)
+    p = bone.parent
+    while p is not None and p.name not in linked:
+        p = p.parent
+    if p is None:
+        sys.exit(f"[rig] no linked joint can stand in for {name}")
+    return p.name
+
+
+substitutes = {}
+for r in bmap.values():
+    if isinstance(r["weights"], list):  # alternatives for hosts that lack the first joint
+        have = [w for w in r["weights"] if w in host_arm.data.bones]
+        if not have:
+            sys.exit(f"[rig] host has none of {r['weights']}")
+        r["weights"] = have[0]
+    t = linked_target(r["weights"])
+    if t != r["weights"]:
+        substitutes[r["weights"]] = t
+    r["weights"] = t
+if substitutes:
+    print("[rig] stand-ins for unlinked joints: " + ", ".join(f"{a}->{b}" for a, b in sorted(substitutes.items())))
 
 
 def host_point(spec):

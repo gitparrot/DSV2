@@ -78,7 +78,8 @@ def generate(draft):
 
     # Only units that exist in the SDK project can go in the package, or the build fails.
     rows = skins["rows"] + props["rows"]
-    units = [r["skin_unit"] for r in rows if r["rigged"] is True]
+    # Variant rows (shield, commander) share their base row's skin unit; list each unit once.
+    units = list(dict.fromkeys(r["skin_unit"] for r in rows if r["rigged"] is True))
     unit_block = "".join(f'\t"{u}"\n' for u in units)
     write(os.path.join(MOD, "resource_packages", "dsv2", "dsv2.package"), (
         "lua = [\n\t\"scripts/mods/dsv2/*\"\n]\n" + (f"\nunit = [\n{unit_block}]\n" if units else "")))

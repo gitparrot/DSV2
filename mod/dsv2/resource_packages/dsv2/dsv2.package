@@ -4,4 +4,6 @@ lua = [
 
 unit = [
 	"units/dsv2/slasher_fanatic/slasher_fanatic"
+	"units/dsv2/slasher_clanrat/slasher_clanrat"
+	"units/dsv2/slasher_marauder/slasher_marauder"
 ]

@@ -102,7 +102,7 @@ plus the full 168-node scene graph as comments.
   importing the compiled unit with BBT shows 10 skinned meshes on the Fanatic's `j_*` joints, 17,901 vertices, all
   weights summing to 1 (`root_point` appears only as zero-weight padding).
 - Not yet seen in game. The compile used `--compile-for win32` straight to a scratch folder; the Workshop item
-  (step 2, `vmb create` / `vmb build`) does not exist yet.
+  (step 2, `vmb create` / `vmb build`) did not exist yet at that point (it does now, see below).
 - Look: the 0.6 m blades hang forward-down along the Fanatic's forearms and cross over the head when the elbow bends
   fully. The head stands upright (the Slasher normally hunches), so its hanging split jaw juts forward. The
   backwards-twisted left foot is in the original model.

@@ -21,15 +21,15 @@ Necromorph Tide pipeline". It can then run the tools below itself. Each step lis
 
 ## 2. Create the Workshop item (private)
 Done (2026-10-06): item **3814476856**, private, `published_id` is in `mod/dsv2/itemV2.cfg`. vmb 1.8.4 lives in
-`D:\Mods	oolsmb` (its `.vmbrc` fallbacks point at `D:/SteamLibrary`; mods folder `D:\Mods	oolsmb\mods`).
+`D:/Mods/tools/vmb` (its `.vmbrc` fallbacks point at `D:/SteamLibrary`; mods folder `D:/Mods/tools/vmb/mods`).
 Note: vmb's uploader auto-answers "Y" to the Vermintide 2 EULA modding-terms prompt.
 To build after any change (local only, nothing is uploaded):
 ```
 cp -r mod/dsv2/. D:/Mods/tools/vmb/mods/dsv2/        (after make_sdk_unit.py has put the git-ignored .fbx/.png in place)
-D:\Mods	oolsmbmb.exe build dsv2
+D:/Mods/tools/vmb/vmb.exe build dsv2
 ```
 `vmb build` compiles with the SDK and copies the bundles to `bundleV2` and to the subscribed item's Workshop folder
-(`D:\SteamLibrary\steamapps\workshop\contentŪ500814476856`), which is what the launcher loads.
+(`D:/SteamLibrary/steamapps/workshop/content/552500/3814476856`), which is what the launcher loads.
 **Never run `vmb upload`**: that would put the Dead Space 2 assets on Steam, even if the item is private.
 First in-game check: the mod's options appear in the game's mod menu.
 

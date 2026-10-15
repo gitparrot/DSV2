@@ -59,14 +59,21 @@ def generate(draft):
             f"\thide_inventory = false,\n\tsetting = {lua(row['setting'])},\n"
             f"\tlinks = {{ {', '.join(lua(l) for l in row['link_nodes'])} }},\n}}\n")
     for row in players["rows"]:  # SKINS.careers.<career>.<first_person|third_person>
-        links = [[bone, bone] for bone in bones_for(row)]
+        retarget = ""
+        if row["rig_mode"] == "retarget":  # joints copied each frame instead of links (see dsv2.lua)
+            rt = json.load(open(os.path.join(ROOT, row["retarget_file"]), encoding="utf-8"))
+            links = []
+            retarget = (f"\tretarget = {{\n\t\thips = {lua(rt['hips'])},\n\t\thost_hips_rest = {lua(rt['host_hips_rest'])},\n"
+                        f"\t\tbones = {lua(rt['bones'])},\n\t}},\n")
+        else:
+            links = [[bone, bone] for bone in bones_for(row)]
         out.append(
-            f"-- {row['id']}: {row['source_model']} on {row['career']} ({row['view']})\n"
+            f"-- {row['id']}: {row['source_model']} on {row['career']} ({row['view']}, {row['rig_mode']})\n"
             f"SKINS.careers.{row['career']} = SKINS.careers.{row['career']} or {{}}\n"
             f"SKINS.careers.{row['career']}.{row['view']} = {{\n"
             f"\tid = {lua(row['id'])},\n\tskin_unit = {lua(row['skin_unit'])},\n\tscale = {lua(row['scale'])},\n"
             f"\thide_inventory = false,\n\tsetting = {lua(row['setting'])},\n"
-            f"\tlinks = {{ {', '.join(lua(l) for l in links)} }},\n}}\n")
+            f"\tlinks = {{ {', '.join(lua(l) for l in links)} }},\n{retarget}}}\n")
     for row in weapons["rows"]:  # SKINS.weapons.<AttachmentNodeLinking key>.<first_person|third_person>
         out.append(
             f"-- {row['id']}: {row['source_model']} replaces {row['node_linking']} ({row['view']})\n"

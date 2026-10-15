@@ -36,6 +36,11 @@ Unit = {
 	world_position = function () return "pos" end,
 	world_rotation = function () return "rot" end,
 	set_local_scale = function (unit, node, scale) unit.scales[node] = scale end,
+	-- local poses: hosts report an "animated" rotation per node; skins record what the mod writes
+	local_rotation = function (unit, node) return "anim" .. node end,
+	set_local_rotation = function (unit, node, rot) unit.rotations = unit.rotations or {}; unit.rotations[node] = rot end,
+	local_position = function (unit, node) return Vector3(0, 0, unit.hips_height or 1) end,
+	set_local_position = function (unit, node, pos) unit.positions = unit.positions or {}; unit.positions[node] = pos end,
 	-- skins come out of the SDK with x100 on the skeleton's rest pose (see dsv2.lua); hosts are unscaled
 	world_pose = function (unit, node) return { x = { unit.rest_scale or 1, 0, 0 } } end,
 }
@@ -45,6 +50,7 @@ World = {
 		local skin = new_unit(name, { Hips = 1, Spine = 2 })
 
 		skin.rest_scale = 100
+		skin.hips_height = 2 -- skins' hips sit at twice the host's (1), like Isaac on Bardin
 
 		return skin
 	end,
@@ -53,8 +59,9 @@ World = {
 	end,
 	destroy_unit = function (world, unit) unit.alive = false end,
 }
+local vec_meta = { __mul = function (v, f) return setmetatable({ v[1] * f, v[2] * f, v[3] * f }, getmetatable(v)) end }
 Vector3 = setmetatable({ length = function (v) return math.sqrt(v[1] ^ 2 + v[2] ^ 2 + v[3] ^ 2) end },
-	{ __call = function (_, x, y, z) return { x, y, z } end })
+	{ __call = function (_, x, y, z) return setmetatable({ x, y, z }, vec_meta) end })
 Application = { can_get = function (kind, name) return kind == "unit" and name ~= "units/dsv2/missing/missing" end }
 
 local inventories = {}
@@ -114,7 +121,8 @@ local mod = {
 			careers = {
 				dr_engineer = {
 					third_person = { id = "isaac_3p", skin_unit = "units/dsv2/isaac_3p/isaac_3p", scale = 1,
-						hide_inventory = false, setting = "isaac_engineer", links = { { "Hips", "Hips" } } },
+						hide_inventory = false, setting = "isaac_engineer", links = {},
+						retarget = { hips = "Hips", host_hips_rest = { 0, 0, 1 }, bones = { "Hips", "Spine", "Missing" } } },
 					first_person = { id = "isaac_1p", skin_unit = "units/dsv2/isaac_1p/isaac_1p", scale = 1,
 						hide_inventory = false, setting = "isaac_engineer", links = { { "Hips", "Hips" } } },
 				},
@@ -224,7 +232,7 @@ check(skin_on(clanrat) == nil, "unfreezing a breed without a row does nothing")
 
 -- hero meshes and weapons
 local player = new_unit("player")
-local tp_mesh = new_unit("chr_third_person_mesh", { Hips = 5 })
+local tp_mesh = new_unit("chr_third_person_mesh", { Hips = 5, Spine = 7 })
 local fp_mesh = new_unit("chr_first_person_mesh", { Hips = 6 })
 local hand = new_unit("first_person_base", { j_leftweaponattach = 3 })
 local gun = new_unit("wpn_dw_rotary_gun_01_t1", { [0] = 0 })
@@ -237,6 +245,12 @@ check(isaac_3p ~= nil and isaac_3p.name == "units/dsv2/isaac_3p/isaac_3p", "Outc
 check(tp_mesh.visible == false and isaac_3p.visible == false, "Isaac starts hidden like the body he replaces (first person)")
 Unit.set_unit_visibility(tp_mesh, true)
 check(tp_mesh.visible == false and isaac_3p.visible == true, "switching to 3rd person shows Isaac, not the dwarf")
+check(#isaac_3p.links == 1 and isaac_3p.links[1][1] == 0 and isaac_3p.scales[0] and isaac_3p.scales[0][1] == 100,
+	"retarget skin links only its root, rest scale restored")
+mod.update(0.016)
+check(isaac_3p.rotations and isaac_3p.rotations[1] == "anim5" and isaac_3p.rotations[2] == "anim7",
+	"each frame Isaac's joints copy the dwarf's local rotations")
+check(isaac_3p.positions and isaac_3p.positions[1][3] == 2, "hips position scaled to Isaac's leg length")
 PlayerUnitCosmeticExtension._init_mesh_attachment({ _tp_unit_mesh = slayer_mesh }, world, player, "skin", {}, { name = "dr_slayer" })
 check(skin_on(slayer_mesh) == nil and slayer_mesh.visible, "other careers untouched")
 

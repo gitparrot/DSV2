@@ -15,6 +15,9 @@ local warned = {}
 local skinned_count = {} -- entry id -> skins applied this session (for /dsv2_status)
 local wanted = setmetatable({}, { __mode = "k" }) -- unit -> visibility the game last asked for
 local weapon_entry_of -- AttachmentNodeLinking table -> weapon skin entry, built on first use
+local owner_of = {} -- hero 3rd-person mesh -> its player unit (to keep your own body out of your first-person view)
+local fp_hidden = {} -- hero 3rd-person mesh -> true while we hide its skin for the first-person camera
+local retarget_of = {} -- host unit -> { pairs = { host node, skin node, ... }, hips_host, hips_skin, factor }
 
 local function entry_for(unit, unit_template_name)
 	local breed = Unit.get_data(unit, "breed")
@@ -64,6 +67,43 @@ local function remove_skin(unit)
 
 	skin_of[unit] = nil
 	world_of[unit] = nil
+	owner_of[unit] = nil
+	fp_hidden[unit] = nil
+	retarget_of[unit] = nil
+end
+
+-- Retarget skins have their own skeleton: a copy of the host's (same joint names, parents and rest orientations)
+-- with the joints moved to the skin's proportions. Only the root is linked; each frame update_retargets copies the
+-- host's local joint rotations onto it, and the hips' position scaled from the host's leg length to the skin's.
+local function setup_retarget(unit, skin, entry)
+	local rt = entry.retarget
+	local node_pairs = {}
+
+	for _, name in ipairs(rt.bones) do
+		if Unit.has_node(unit, name) and Unit.has_node(skin, name) then
+			node_pairs[#node_pairs + 1] = Unit.node(unit, name)
+			node_pairs[#node_pairs + 1] = Unit.node(skin, name)
+		else
+			warn_once(entry.id .. name, "%s: joint %s missing on host or skin", entry.id, name)
+		end
+	end
+
+	local hips_host = Unit.has_node(unit, rt.hips) and Unit.node(unit, rt.hips)
+	local hips_skin = Unit.has_node(skin, rt.hips) and Unit.node(skin, rt.hips)
+	local h = rt.host_hips_rest
+	local host_len = math.sqrt(h[1] * h[1] + h[2] * h[2] + h[3] * h[3])
+	-- The skin's hips rest offset is in its own parent's units (which may carry the SDK's x100), so this ratio
+	-- converts both the size difference and the units.
+	local factor = hips_skin and host_len > 0 and Vector3.length(Unit.local_position(skin, hips_skin)) / host_len
+
+	retarget_of[unit] = {
+		pairs = node_pairs,
+		hips_host = factor and hips_host,
+		hips_skin = factor and hips_skin,
+		factor = factor,
+	}
+
+	return #node_pairs / 2
 end
 
 -- listen: also register a destroy listener (networked enemies and banners; local units like hero meshes and
@@ -73,7 +113,7 @@ local function apply_skin(world, unit, entry, listen)
 		return
 	end
 
-	if #entry.links == 0 then
+	if #entry.links == 0 and not entry.retarget then
 		warn_once(entry.id, "%s has no bone list yet (bones_file in the sheets); left unskinned", entry.id)
 
 		return
@@ -88,6 +128,11 @@ local function apply_skin(world, unit, entry, listen)
 	local skin = World.spawn_unit(world, entry.skin_unit, Unit.world_position(unit, 0), Unit.world_rotation(unit, 0))
 	local pairs_to_link = {}
 	local links_root = false
+
+	if entry.retarget then
+		pairs_to_link[1] = { 0, 0, rest_scale(skin, 0) }
+		links_root = true
+	end
 
 	for _, link in ipairs(entry.links) do
 		local host_node, skin_node = link[1], link[2]
@@ -136,6 +181,15 @@ local function apply_skin(world, unit, entry, listen)
 			#pairs_to_link, #entry.links, scale_fixed)
 	end
 
+	if entry.retarget then
+		local joints = setup_retarget(unit, skin, entry)
+
+		if skinned_count[entry.id] == 1 then
+			mod:info("%s: retargeting %d/%d joints, hips factor %s", entry.id, joints, #entry.retarget.bones,
+				tostring(retarget_of[unit].factor))
+		end
+	end
+
 	if entry.scale ~= 1 then
 		Unit.set_local_scale(skin, 0, Vector3(entry.scale, entry.scale, entry.scale))
 	end
@@ -167,7 +221,7 @@ mod:hook(Unit, "set_unit_visibility", function (func, unit, visible, ...)
 
 	if skin then
 		if Unit.alive(skin) then
-			func(skin, visible, ...)
+			func(skin, visible and not fp_hidden[unit], ...)
 		end
 
 		return func(unit, false, ...)
@@ -201,6 +255,10 @@ mod:hook_safe(PlayerUnitCosmeticExtension, "_init_mesh_attachment", function (se
 
 	if entry and self._tp_unit_mesh then
 		apply_skin(world, self._tp_unit_mesh, entry)
+
+		if skin_of[self._tp_unit_mesh] then
+			owner_of[self._tp_unit_mesh] = unit
+		end
 	end
 end)
 
@@ -271,6 +329,44 @@ mod:command("dsv2_status", "Necromorph Tide: how many units wear a skin right no
 	mod:echo("dsv2: %d skins alive; applied this session: %s", alive, #parts > 0 and table.concat(parts, ", ") or "none")
 end)
 
+-- Your own 3rd-person body is never hidden through set_unit_visibility: in first person the game keeps it out of
+-- view by other means (it starts "visible" and first-person mode never toggles it). Isaac would then fill the
+-- camera, so hide your own skin whenever your first-person view is active.
+local function update_own_body()
+	for mesh, owner in pairs(owner_of) do
+		local skin = skin_of[mesh]
+		local fp = Unit.alive(owner) and ScriptUnit.has_extension(owner, "first_person_system")
+
+		if skin and fp and Unit.alive(skin) then
+			local hide = fp:first_person_mode_active()
+
+			if hide ~= (fp_hidden[mesh] or false) then
+				fp_hidden[mesh] = hide
+
+				Unit.set_unit_visibility(skin, not hide and wanted[mesh] ~= false)
+			end
+		end
+	end
+end
+
+local function update_retargets()
+	for unit, rt in pairs(retarget_of) do
+		local skin = skin_of[unit]
+
+		if skin and Unit.alive(skin) and Unit.alive(unit) and not fp_hidden[unit] then
+			local p = rt.pairs
+
+			for i = 1, #p, 2 do
+				Unit.set_local_rotation(skin, p[i + 1], Unit.local_rotation(unit, p[i]))
+			end
+
+			if rt.factor then
+				Unit.set_local_position(skin, rt.hips_skin, Unit.local_position(unit, rt.hips_host) * rt.factor)
+			end
+		end
+	end
+end
+
 mod.update = function ()
 	-- Hero meshes and weapons are local units with no destroy listener: drop skins whose host is gone.
 	for unit in pairs(skin_of) do
@@ -278,6 +374,9 @@ mod.update = function ()
 			remove_skin(unit)
 		end
 	end
+
+	update_own_body()
+	update_retargets()
 
 	if #queued == 0 then
 		return
@@ -305,4 +404,7 @@ mod.on_game_state_changed = function (status, state_name)
 	skin_of = {}
 	world_of = {}
 	queued = {}
+	owner_of = {}
+	fp_hidden = {}
+	retarget_of = {}
 end

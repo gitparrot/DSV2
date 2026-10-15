@@ -12,6 +12,12 @@ What it does: turn the source model to face the host's way; point/stretch the so
 joints (map "head", "stretch", "aim"); bake that pose into the mesh; move each source bone's weights to its
 mapped host joint; bind the meshes to the host armature (renamed "Armature" so the FBX has no extra root).
 Writes <out>.fbx and <out>.blend (git-ignored), plus the host's own meshes hidden in "host_ref" for comparison.
+
+--mode retarget [--retarget-out pipeline/bones/<id>_retarget.json]  (heroes: keep the source's own proportions)
+    The skin then gets a copy of the host skeleton (same names, parents and rest orientations) with each joint
+    moved to where the source's matching joint is; the mod copies the host's local joint rotations onto it every
+    frame instead of pinning bones. The source is only turned (no stretching or moving) into the host's rest
+    pose. Isaac keeps his height and build and moves like Bardin.
 """
 import json, math, os, sys
 
@@ -24,6 +30,8 @@ source, host, map_path, bones_path, out_fbx = (arg(k) for k in ("--source", "--h
 cfg = json.load(open(map_path, encoding="utf-8"))
 bmap = cfg["bones"]
 linked = [ln.strip() for ln in open(bones_path, encoding="utf-8") if ln.strip() and not ln.startswith("#")]
+mode = argv[argv.index("--mode") + 1] if "--mode" in argv else "link"
+retarget_out = arg("--retarget-out") if "--retarget-out" in argv else None
 
 bpy.ops.wm.read_factory_settings(use_empty=True)
 scene = bpy.context.scene
@@ -148,9 +156,33 @@ def empty_at(p, name):
     return e
 
 
+def ordered(names_):
+    """Source bones parent-first."""
+    depth = lambda b: 0 if b.parent is None else 1 + depth(b.parent)
+    return sorted(names_, key=lambda n: depth(src_arm.data.bones[n]))
+
+
+def host_dir(row):
+    a = row.get("head")
+    b = row.get("stretch") or row.get("aim")
+    return (host_point(b) - host_point(a)).normalized() if a and b else None
+
+
+if mode == "retarget":
+    # turn each fitted source bone along the host's limb direction, parents first; nothing is moved or stretched
+    inv = src_arm.matrix_world.inverted().to_3x3()
+    for name in ordered([n for n, r in bmap.items() if host_dir(r) is not None and n in src_arm.pose.bones]):
+        pb = src_arm.pose.bones[name]
+        bpy.context.view_layer.update()
+        want = (inv @ host_dir(bmap[name])).normalized()
+        have = (pb.tail - pb.head).normalized()
+        m = pb.matrix.copy()
+        pb.matrix = Matrix.Translation(m.to_translation()) @ have.rotation_difference(want).to_matrix().to_4x4() @             m.to_3x3().to_4x4()
+    bpy.context.view_layer.update()
+
 for name, row in bmap.items():
     pb = src_arm.pose.bones.get(name)
-    if pb is None:
+    if pb is None or mode == "retarget":
         continue
     if "head" in row:
         c = pb.constraints.new("COPY_LOCATION")
@@ -172,7 +204,19 @@ for name, row in bmap.items():
     if "head" in row and name in src_arm.pose.bones:
         d = ((src_arm.matrix_world @ src_arm.pose.bones[name].head) - host_point(row["head"])).length
         worst = max(worst, d)
-print(f"[rig] fitted bone heads within {worst * 100:.1f} cm of their host joints")
+if mode == "link":
+    print(f"[rig] fitted bone heads within {worst * 100:.1f} cm of their host joints")
+
+# retarget: where the source's joints ended up, keyed by the host joint they stand for
+src_joint_at = {}
+if mode == "retarget":
+    for name, row in bmap.items():
+        if "head" in row and isinstance(row["head"], str) and name in src_arm.pose.bones:
+            src_joint_at[row["head"]] = src_arm.matrix_world @ src_arm.pose.bones[name].head
+        b = row.get("stretch") or row.get("aim")
+        tail_bone = row.get("tail_to")
+        if isinstance(b, str) and tail_bone in src_arm.pose.bones:
+            src_joint_at.setdefault(b, src_arm.matrix_world @ src_arm.pose.bones[tail_bone].head)
 
 # ---- bake the fitted pose into the meshes, then move weights ---------------------------------------
 for ob in src_meshes:
@@ -199,12 +243,76 @@ for ob in src_meshes:
             g = new.get(tgt) or ob.vertex_groups.new(name=tgt)
             new[tgt] = g
             g.add([vi], w / total, "REPLACE")
-    ob.parent = host_arm
-    mod = ob.modifiers.new("Armature", "ARMATURE")
-    mod.object = host_arm
+    if mode == "link":
+        ob.parent = host_arm
+        mod = ob.modifiers.new("Armature", "ARMATURE")
+        mod.object = host_arm
 
 unweighted = [ob.name for ob in src_meshes for v in ob.data.vertices if not v.groups]
 print(f"[rig] {len(src_meshes)} meshes bound to {host_arm.name}; unweighted vertices: {len(unweighted)}")
+
+# ---- retarget: a copy of the host skeleton with the source's proportions -----------------------------
+if mode == "retarget":
+    used = {g.name for o in src_meshes for g in o.vertex_groups}
+    keep = set()
+    for n in used:  # weighted joints and every ancestor, so local rotations mean the same as on the host
+        b = host_arm.data.bones[n]
+        while b is not None:
+            keep.add(b.name)
+            b = b.parent
+    host_head = {b.name: host_arm.matrix_world @ b.head_local for b in host_arm.data.bones}
+    hips = "j_hips"
+    lift = src_joint_at.get(hips, host_head[hips]).z / host_head[hips].z  # overall size ratio, by hip height
+    new_head = {}
+
+    def place(name):
+        if name in new_head:
+            return new_head[name]
+        b = host_arm.data.bones[name]
+        if name in src_joint_at:
+            p = src_joint_at[name].copy()
+        elif b.parent is None:
+            p = host_head[name].copy()
+        else:
+            # between mapped joints: same fraction along the source's limb; otherwise the host offset, scaled
+            pp = place(b.parent.name)
+            kid = next((c.name for c in b.children_recursive if c.name in src_joint_at), None)
+            if kid:
+                seg_h = host_head[kid] - host_head[b.parent.name]
+                t = 0.0 if seg_h.length < 1e-6 else max(0.0, min(1.0, (host_head[name] - host_head[b.parent.name]).dot(seg_h) / seg_h.length_squared))
+                p = pp.lerp(src_joint_at[kid], t)
+            else:
+                p = pp + (host_head[name] - host_head[b.parent.name]) * lift
+        new_head[name] = p
+        return p
+
+    bpy.context.view_layer.objects.active = host_arm
+    bpy.ops.object.mode_set(mode="EDIT")
+    heb = host_arm.data.edit_bones
+    for b in list(heb):
+        if b.name not in keep:
+            heb.remove(b)
+    for name in list(keep):
+        place(name)
+    for b in heb:  # move, keeping each joint's rest orientation and length
+        m = b.matrix.copy()
+        b.matrix = Matrix.Translation(new_head[b.name]) @ m.to_3x3().to_4x4()
+    bpy.ops.object.mode_set(mode="OBJECT")
+    for ob in src_meshes:
+        ob.parent = host_arm
+        mod = ob.modifiers.new("Armature", "ARMATURE")
+        mod.object = host_arm
+    # the host's rest local position of the hips, for scaling hip motion to the skin's leg length at runtime
+    hb = host_arm.data.bones
+    print(f"[rig] retarget skeleton: {len(keep)} joints; size ratio by hip height {lift:.2f}")
+    if retarget_out:
+        hr = host_head[hips] - (host_head[hb[hips].parent.name] if hb[hips].parent else Vector())
+        with open(retarget_out, "w", encoding="utf-8", newline="\n") as f:
+            json.dump({"about": "Joints the mod copies from the host each frame (local rotation and scale), parent-first; "
+                                "hips local position is scaled by the skin's leg length. Written by rig_onto_host.py --mode retarget.",
+                       "hips": hips, "host_hips_rest": [round(x, 5) for x in hr],
+                       "bones": sorted(keep, key=lambda n: (len(hb[n].parent_recursive), n))}, f, indent=1)
+        print(f"[rig] wrote {retarget_out}")
 
 # ---- clean up and export ---------------------------------------------------------------------------
 bpy.data.objects.remove(src_arm)

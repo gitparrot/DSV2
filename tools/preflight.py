@@ -63,6 +63,10 @@ def preflight():
             unfilled.append(f"player_skins[{row['id']}].bones_file: {row['bones_file']} missing or empty")
         if row["view"] not in ("first_person", "third_person"):
             broken.append(f"player_skins[{row['id']}].view: {row['view']!r} is not first_person/third_person")
+        if row["rig_mode"] not in ("link", "retarget"):
+            broken.append(f"player_skins[{row['id']}].rig_mode: {row['rig_mode']!r} is not link/retarget")
+        elif row["rig_mode"] == "retarget" and not os.path.isfile(os.path.join(ROOT, row["retarget_file"])):
+            unfilled.append(f"player_skins[{row['id']}].retarget_file: {row['retarget_file']} missing (rig_onto_host.py --mode retarget)")
     for row in sheets["weapon_skins"]["rows"]:
         if row["view"] not in ("first_person", "third_person"):
             broken.append(f"weapon_skins[{row['id']}].view: {row['view']!r} is not first_person/third_person")

@@ -217,7 +217,8 @@ blocks most of the screen; change sound, muzzle effects and bullet trails; add N
   Unverified: whether lua_bullet_trail also carries the crank gun's own muzzle flash, and the trail variable's meaning.
 - Sounds: VT2 guns play their shot sounds from unit flow too, so there is no simple swap to another game sound. Dead Space
   audio (DS2DAT0/1, EA SNU/SBK, decodable with vgmstream) needs Wwise banks the SDK can compile (`wwise_bank`), which
-  needs Audiokinetic's Wwise authoring tool (account required). Not started; waiting on the owner.
+  needs Audiokinetic's Wwise authoring tool (account required). Owner passed on this (2026-10-14): no custom sounds;
+  the rifle keeps the crank gun's sounds and enemies keep theirs.
 
 ## Open questions (block the first in-game build)
 1. Look and feel still to judge: blade arms vs the Fanatic's swings, the forward-jutting jaw, the torch flame that
@@ -232,4 +233,4 @@ blocks most of the screen; change sound, muzzle effects and bullet trails; add N
 
 ## Not in this version
 - The carried (unplanted) banner keeps its Beastmen look; only the planted banner becomes a Marker.
-- Plasma cutter, Isaac's suit and Dead Space sounds: discussed, not started.
+- Plasma cutter: discussed, not started. Dead Space sounds: owner passed (needs vgmstream + Wwise).

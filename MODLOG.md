@@ -220,6 +220,15 @@ blocks most of the screen; change sound, muzzle effects and bullet trails; add N
   needs Audiokinetic's Wwise authoring tool (account required). Owner passed on this (2026-10-14): no custom sounds;
   the rifle keeps the crank gun's sounds and enemies keep theirs.
 
+**First look in game (2026-10-15, Chaos Wastes, Outcast Engineer):** first-person view no longer blocked looking ahead,
+but (1) the crank gun was never swapped: `AttachmentUtils.link` only links hats and body meshes; wielded weapons go
+through `GearUtils.link` -> `GearUtils.link_units` (gear_utils.lua:293), now hooked (logs from 2026-10-06 also showed
+both Isaac skins applied but no rifle). (2) Bardin's hat (dr_e_hat_03, with a flame effect) floated in front of the camera
+when looking down. player_skins gains `hide_attachments` (true on the 3p body): the mod keeps the owner's attachment-slot
+units hidden (`forced_hidden`, enforced in the visibility hook) since they're linked to the dwarf head inside Isaac.
+Unverified: why the game showed the hat in first person at all, and whether the flame is a flow particle that
+outlives the hidden hat.
+
 ## Open questions (block the first in-game build)
 1. Look and feel still to judge: blade arms vs the Fanatic's swings, the forward-jutting jaw, the torch flame that
    still shows (it's the hidden torch item's effect), and dismemberment.

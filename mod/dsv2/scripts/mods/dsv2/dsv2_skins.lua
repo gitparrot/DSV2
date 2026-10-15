@@ -241,6 +241,7 @@ SKINS.careers.dr_engineer.third_person = {
 	skin_unit = "units/dsv2/isaac_engineer_3p/isaac_engineer_3p",
 	scale = 1.0,
 	hide_inventory = false,
+	hide_attachments = true,
 	setting = "isaac_engineer",
 	links = {  },
 	retarget = {
@@ -256,6 +257,7 @@ SKINS.careers.dr_engineer.first_person = {
 	skin_unit = "units/dsv2/isaac_engineer_1p/isaac_engineer_1p",
 	scale = 1.0,
 	hide_inventory = false,
+	hide_attachments = false,
 	setting = "isaac_engineer",
 	links = { { "j_leftshoulder", "j_leftshoulder" }, { "j_leftarm", "j_leftarm" }, { "j_leftforearm", "j_leftforearm" }, { "j_lefthand", "j_lefthand" }, { "j_leftinhandindex", "j_leftinhandindex" }, { "j_lefthandindex1", "j_lefthandindex1" }, { "j_lefthandindex2", "j_lefthandindex2" }, { "j_lefthandindex3", "j_lefthandindex3" }, { "j_leftinhandmiddle", "j_leftinhandmiddle" }, { "j_lefthandmiddle1", "j_lefthandmiddle1" }, { "j_lefthandmiddle2", "j_lefthandmiddle2" }, { "j_lefthandmiddle3", "j_lefthandmiddle3" }, { "j_leftinhandpinky", "j_leftinhandpinky" }, { "j_lefthandpinky1", "j_lefthandpinky1" }, { "j_lefthandpinky2", "j_lefthandpinky2" }, { "j_lefthandpinky3", "j_lefthandpinky3" }, { "j_leftinhandring", "j_leftinhandring" }, { "j_lefthandring1", "j_lefthandring1" }, { "j_lefthandring2", "j_lefthandring2" }, { "j_lefthandring3", "j_lefthandring3" }, { "j_leftinhandthumb", "j_leftinhandthumb" }, { "j_lefthandthumb1", "j_lefthandthumb1" }, { "j_lefthandthumb2", "j_lefthandthumb2" }, { "j_piston_l_forearm", "j_piston_l_forearm" }, { "j_piston_l_arm", "j_piston_l_arm" }, { "j_rightshoulder", "j_rightshoulder" }, { "j_rightarm", "j_rightarm" }, { "j_rightarmroll", "j_rightarmroll" }, { "j_rightforearm", "j_rightforearm" }, { "j_rightforearmroll", "j_rightforearmroll" }, { "j_righthand", "j_righthand" }, { "j_rightinhandindex", "j_rightinhandindex" }, { "j_righthandindex1", "j_righthandindex1" }, { "j_righthandindex2", "j_righthandindex2" }, { "j_righthandindex3", "j_righthandindex3" }, { "j_rightinhandmiddle", "j_rightinhandmiddle" }, { "j_righthandmiddle1", "j_righthandmiddle1" }, { "j_righthandmiddle2", "j_righthandmiddle2" }, { "j_righthandmiddle3", "j_righthandmiddle3" }, { "j_rightinhandpinky", "j_rightinhandpinky" }, { "j_righthandpinky1", "j_righthandpinky1" }, { "j_righthandpinky2", "j_righthandpinky2" }, { "j_righthandpinky3", "j_righthandpinky3" }, { "j_rightinhandring", "j_rightinhandring" }, { "j_righthandring1", "j_righthandring1" }, { "j_righthandring2", "j_righthandring2" }, { "j_righthandring3", "j_righthandring3" }, { "j_rightinhandthumb", "j_rightinhandthumb" }, { "j_righthandthumb1", "j_righthandthumb1" }, { "j_righthandthumb2", "j_righthandthumb2" } },
 }

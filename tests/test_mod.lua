@@ -81,7 +81,11 @@ ActionCareerDREngineer = { _add_bullet_trail = function (self, end_position) sel
 
 local inventories = {}
 
-ScriptUnit = { has_extension = function (unit, system) return system == "ai_inventory_system" and inventories[unit] end }
+local attachment_exts = {}
+
+ScriptUnit = { has_extension = function (unit, system)
+	return (system == "ai_inventory_system" and inventories[unit]) or (system == "attachment_system" and attachment_exts[unit])
+end }
 
 local destroy_listeners = {}
 
@@ -101,7 +105,7 @@ UnitSpawner = { create_unit_extensions = function () end }
 BreedFreezer = { unfreeze_unit = function (self, unit) Unit.set_unit_visibility(unit, true) end }
 PlayerUnitCosmeticExtension = { _init_mesh_attachment = function () end }
 PlayerUnitFirstPerson = { init = function () end }
-AttachmentUtils = { link = function () end }
+GearUtils = { link_units = function () end }
 AttachmentNodeLinking = { rotary_gun = { first_person = { wielded = { {} }, unwielded = { {} } }, third_person = { wielded = { {} } } } }
 Managers.backend = { get_interface = function () return { get = function () return 2 end } end }
 
@@ -136,7 +140,7 @@ local mod = {
 			careers = {
 				dr_engineer = {
 					third_person = { id = "isaac_3p", skin_unit = "units/dsv2/isaac_3p/isaac_3p", scale = 1,
-						hide_inventory = false, setting = "isaac_engineer", links = {},
+						hide_inventory = false, hide_attachments = true, setting = "isaac_engineer", links = {},
 						retarget = { hips = "Hips", host_hips_rest = { 0, 0, 1 }, bones = { "Hips", "Spine", "Missing" } } },
 					first_person = { id = "isaac_1p", skin_unit = "units/dsv2/isaac_1p/isaac_1p", scale = 1,
 						hide_inventory = false, setting = "isaac_engineer", links = { { "Hips", "Hips" } } },
@@ -267,6 +271,12 @@ mod.update(0.016)
 check(isaac_3p.rotations and isaac_3p.rotations[1] == "anim5" and isaac_3p.rotations[2] == "anim7",
 	"each frame Isaac's joints copy the dwarf's local rotations")
 check(isaac_3p.positions and isaac_3p.positions[1][3] == 2, "hips position scaled to Isaac's leg length")
+local hat = new_unit("dr_e_hat_03")
+attachment_exts[player] = { _attachments = { slots = { slot_hat = { unit = hat } } } }
+mod.update(0.016)
+check(hat.visible == false, "Bardin's hat is hidden under Isaac")
+Unit.set_unit_visibility(hat, true)
+check(hat.visible == false, "and stays hidden when the game shows attachments (3rd person)")
 PlayerUnitCosmeticExtension._init_mesh_attachment({ _tp_unit_mesh = slayer_mesh }, world, player, "skin", {}, { name = "dr_slayer" })
 check(skin_on(slayer_mesh) == nil and slayer_mesh.visible, "other careers untouched")
 
@@ -274,17 +284,17 @@ PlayerUnitFirstPerson.init({ world = world, first_person_attachment_unit = fp_me
 	{ profile = { display_name = "dwarf_ranger", careers = { {}, { name = "dr_engineer" } } } })
 check(skin_on(fp_mesh) ~= nil and fp_mesh.visible == false, "first-person arms get Isaac's (career from hero attributes)")
 
-AttachmentUtils.link(world, hand, gun, AttachmentNodeLinking.rotary_gun.first_person.wielded)
+GearUtils.link_units(world, AttachmentNodeLinking.rotary_gun.first_person.wielded, {}, hand, gun)
 local rifle = skin_on(gun)
 check(rifle ~= nil and rifle.name == "units/dsv2/pulse_1p/pulse_1p" and gun.visible == false, "crank gun becomes the Pulse Rifle")
-AttachmentUtils.link(world, hand, gun, AttachmentNodeLinking.rotary_gun.first_person.unwielded)
+GearUtils.link_units(world, AttachmentNodeLinking.rotary_gun.first_person.unwielded, {}, hand, gun)
 check(#rifle.links == 1, "re-linking the gun (holstered) does not add a second rifle")
 ActionCareerDREngineer._add_bullet_trail({ weapon_unit = gun }, Vector3(0, 10, 0), 1)
 check(not gun.game_trail and #particles == 2 and particles[1].name == "fx/muzzle" and particles[2].size[2] == 10,
 	"a rifle shot draws the rifle's muzzle flash and a 10 m tracer instead of the crank gun's")
 ActionCareerDREngineer._add_bullet_trail({ weapon_unit = hand }, Vector3(0, 10, 0), 1)
 check(hand.game_trail and #particles == 2, "guns without a skin keep the game's shot effects")
-AttachmentUtils.link(world, hand, new_unit("axe"), { {} })
+GearUtils.link_units(world, { {} }, {}, hand, new_unit("axe"))
 gun.alive = false
 mod.update(0.016)
 check(not rifle.alive, "rifle removed once its gun is gone (sweep)")

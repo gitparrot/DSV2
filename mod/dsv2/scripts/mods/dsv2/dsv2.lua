@@ -18,6 +18,7 @@ local weapon_entry_of -- AttachmentNodeLinking table -> weapon skin entry, built
 local owner_of = {} -- hero 3rd-person mesh -> its player unit (to keep your own body out of your first-person view)
 local fp_hidden = {} -- hero 3rd-person mesh -> true while we hide its skin for the first-person camera
 local entry_of = {} -- host unit -> its skin entry
+local forced_hidden = setmetatable({}, { __mode = "k" }) -- hats etc. kept hidden under a body skin
 local retarget_of = {} -- host unit -> { pairs = { host node, skin node, ... }, hips_host, hips_skin, factor }
 
 local function entry_for(unit, unit_template_name)
@@ -220,6 +221,10 @@ end
 mod:hook(Unit, "set_unit_visibility", function (func, unit, visible, ...)
 	wanted[unit] = visible
 
+	if forced_hidden[unit] then
+		return func(unit, false, ...)
+	end
+
 	local skin = skin_of[unit]
 
 	if skin then
@@ -277,7 +282,7 @@ mod:hook_safe(PlayerUnitFirstPerson, "init", function (self, extension_init_cont
 	end
 end)
 
--- Weapons are linked to hands and holsters here. The linking table the game passes identifies the weapon:
+-- Weapons are linked to the hands here (GearUtils.link -> link_units, 1p and 3p). The linking table the game passes identifies the weapon:
 -- AttachmentNodeLinking.<key>.<first_person|third_person>, or its wielded/unwielded sub-tables.
 local function weapon_entry(node_linking)
 	if not weapon_entry_of then
@@ -305,7 +310,7 @@ local function weapon_entry(node_linking)
 	return weapon_entry_of[node_linking]
 end
 
-mod:hook_safe(AttachmentUtils, "link", function (world, source, target, node_linking)
+mod:hook_safe(GearUtils, "link_units", function (world, node_linking, link_table, source, target)
 	local entry = node_linking and weapon_entry(node_linking)
 
 	if entry and Unit.alive(target) then
@@ -425,6 +430,29 @@ local function update_retargets()
 	end
 end
 
+-- A hero wearing a body skin with hide_attachments keeps its hat (and other cosmetic attachments) hidden: they are
+-- linked to the dwarf's head, inside Isaac, and Isaac brings his own helmet. Checked each frame because the game
+-- respawns attachments when the loadout changes.
+local function hide_owner_attachments()
+	for mesh, owner in pairs(owner_of) do
+		local entry = entry_of[mesh]
+		local attachments = entry and entry.hide_attachments and Unit.alive(owner) and ScriptUnit.has_extension(owner, "attachment_system")
+		local slots = attachments and attachments._attachments and attachments._attachments.slots
+
+		if slots then
+			for _, slot_data in pairs(slots) do
+				local unit = slot_data.unit
+
+				if unit and not forced_hidden[unit] and Unit.alive(unit) then
+					forced_hidden[unit] = true
+
+					Unit.set_unit_visibility(unit, false)
+				end
+			end
+		end
+	end
+end
+
 mod.update = function ()
 	-- Hero meshes and weapons are local units with no destroy listener: drop skins whose host is gone.
 	for unit in pairs(skin_of) do
@@ -434,6 +462,7 @@ mod.update = function ()
 	end
 
 	update_own_body()
+	hide_owner_attachments()
 	update_retargets()
 
 	if #queued == 0 then

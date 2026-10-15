@@ -13,6 +13,7 @@
   "rig_mode": "link (pin each skin bone to the host bone: host proportions) or retarget (copy the host's joint rotations onto a skeleton with the source's own proportions)",
   "retarget_file": "for retarget: pipeline/bones/<id>_retarget.json written by rig_onto_host.py --mode retarget; \"none\" for link",
   "scale": "uniform scale",
+  "hide_attachments": "true: keep the hero's hat and other cosmetic attachments hidden (the skin brings its own helmet)",
   "setting": "-> settings.id",
   "rigged": "true once imported in the SDK",
   "tested_in_game": "true once seen in game"
@@ -30,6 +31,7 @@
    "rig_mode": "retarget",
    "retarget_file": "pipeline/bones/isaac_engineer_3p_retarget.json",
    "scale": 1.0,
+   "hide_attachments": true,
    "setting": "isaac_engineer",
    "rigged": true,
    "tested_in_game": false
@@ -46,6 +48,7 @@
    "rig_mode": "link",
    "retarget_file": "none",
    "scale": 1.0,
+   "hide_attachments": false,
    "setting": "isaac_engineer",
    "rigged": true,
    "tested_in_game": false

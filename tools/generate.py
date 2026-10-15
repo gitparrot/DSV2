@@ -72,7 +72,7 @@ def generate(draft):
             f"SKINS.careers.{row['career']} = SKINS.careers.{row['career']} or {{}}\n"
             f"SKINS.careers.{row['career']}.{row['view']} = {{\n"
             f"\tid = {lua(row['id'])},\n\tskin_unit = {lua(row['skin_unit'])},\n\tscale = {lua(row['scale'])},\n"
-            f"\thide_inventory = false,\n\tsetting = {lua(row['setting'])},\n"
+            f"\thide_inventory = false,\n\thide_attachments = {lua(row['hide_attachments'])},\n\tsetting = {lua(row['setting'])},\n"
             f"\tlinks = {{ {', '.join(lua(l) for l in links)} }},\n{retarget}}}\n")
     for row in weapons["rows"]:  # SKINS.weapons.<AttachmentNodeLinking key>.<first_person|third_person>
         shot_fx = ""

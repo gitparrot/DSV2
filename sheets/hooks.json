@@ -60,10 +60,10 @@
   },
   {
    "id": "on_attachment_link",
-   "target": "AttachmentUtils.link",
+   "target": "GearUtils.link_units",
    "kind": "hook_safe",
-   "source": "vt2src scripts/helpers/attachment_utils.lua:66",
-   "purpose": "Weapons are linked to hands and holsters here; the node_linking table identifies the weapon (weapon_skins).",
+   "source": "vt2src scripts/unit_extensions/default_player_unit/inventory/gear_utils.lua:293, called by GearUtils.link for wielded 1p/3p weapons (AttachmentUtils.link only handles hats and body meshes, so the old hook never saw the crank gun)",
+   "purpose": "Weapons, identified by the linking table (AttachmentNodeLinking.<key>.<view>.wielded), get their skin.",
    "tested_in_game": false
   },
   {

@@ -11,6 +11,9 @@
   "skin_unit": "our unit",
   "link_nodes": "list of [host_node, skin_node] pairs; node 0 is the root",
   "scale": "uniform scale",
+  "muzzle_effect": "particle spawned at the host's fx_muzzle node on each shot, replacing the host's own (\"keep\" = leave the game's effects alone)",
+  "trail_effect": "tracer particle from the muzzle to the hit, aimed along the shot (\"keep\" as above)",
+  "trail_variable": "the trail particle's length variable, set to (0.3, distance, 0) like the game's beams; \"none\" to skip",
   "setting": "-> settings.id",
   "rigged": "true once imported in the SDK",
   "tested_in_game": "true once seen in game"
@@ -31,6 +34,9 @@
     ]
    ],
    "scale": 1.0,
+   "muzzle_effect": "fx/handgonne_muzzle_flash",
+   "trail_effect": "fx/wpnfx_pistol_bullet_trail",
+   "trail_variable": "size",
    "setting": "isaac_engineer",
    "rigged": true,
    "tested_in_game": false
@@ -50,6 +56,9 @@
     ]
    ],
    "scale": 1.0,
+   "muzzle_effect": "keep",
+   "trail_effect": "keep",
+   "trail_variable": "none",
    "setting": "isaac_engineer",
    "rigged": true,
    "tested_in_game": false

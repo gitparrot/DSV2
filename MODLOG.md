@@ -196,6 +196,29 @@ seen in game.** Owner's picks: Engineering suit (uniminer), Pulse Rifle.
 - make_sdk_unit.py: one material + 3 textures per texture set; single-set units unchanged (byte-identical check).
 - Build: 10 skin units, bundle 24.7 MB, Lua compiled with the new hooks. tests/test_mod.lua extended (not run).
 
+**Owner's feedback on Isaac + Pulse Rifle (2026-10-14): "Bardin looks off, nothing like Isaac; the gun is janky and
+blocks most of the screen; change sound, muzzle effects and bullet trails; add Necromorph sounds."** Built, not yet seen in game:
+- Screen blocked: your own 3rd-person body is never hidden through set_unit_visibility (the game keeps it out of the
+  first-person camera by other means), so Isaac's body sat around the camera. `update_own_body` hides your own skin
+  while `first_person_mode_active()`.
+- Likeness: the 3p body was pinned bone-for-bone to the dwarf, squashing Isaac to dwarf proportions.
+  `rig_onto_host.py --mode retarget` now builds a copy of the dwarf skeleton (same names, parents, rest orientations)
+  with the joints at Isaac's full size (2.06x the dwarf's hip height); player_skins `rig_mode: retarget`. The mod links
+  only the root and copies the dwarf's local joint rotations each frame (`update_retargets`), with the hips' position
+  scaled to Isaac's leg length. Scale is not copied (it would wipe the SDK's x100 rest scale). Expect up to a frame of
+  lag and feet that may not plant exactly; `pipeline/check_render.py` renders rest and test poses for a visual check.
+- Gun: the rifle and crank gun are about the same size (crank 0.46 x 1.19 x 0.48 m, rifle 0.18 x 0.94 x 0.35 m in the gun's
+  frame), so the blocked screen was the body above. The hands still hold it like a crank gun (right hand on the crank
+  handle j_r_handle), which needs the owner's look to judge.
+- Shot effects: the crank gun's muzzle flash and tracer come from its unit flow (lua_bullet_trail from
+  `ActionCareerDREngineer._add_bullet_trail`). weapon_skins gains muzzle_effect / trail_effect / trail_variable; the
+  mod hooks that method and draws `fx/handgonne_muzzle_flash` + `fx/wpnfx_pistol_bullet_trail` (length variable set
+  like the game's beams) from the gun's fx_muzzle node. Unloaded effects fall back to the game's (warning in the log).
+  Unverified: whether lua_bullet_trail also carries the crank gun's own muzzle flash, and the trail variable's meaning.
+- Sounds: VT2 guns play their shot sounds from unit flow too, so there is no simple swap to another game sound. Dead Space
+  audio (DS2DAT0/1, EA SNU/SBK, decodable with vgmstream) needs Wwise banks the SDK can compile (`wwise_bank`), which
+  needs Audiokinetic's Wwise authoring tool (account required). Not started; waiting on the owner.
+
 ## Open questions (block the first in-game build)
 1. Look and feel still to judge: blade arms vs the Fanatic's swings, the forward-jutting jaw, the torch flame that
    still shows (it's the hidden torch item's effect), and dismemberment.

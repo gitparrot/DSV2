@@ -75,13 +75,17 @@ def generate(draft):
             f"\thide_inventory = false,\n\tsetting = {lua(row['setting'])},\n"
             f"\tlinks = {{ {', '.join(lua(l) for l in links)} }},\n{retarget}}}\n")
     for row in weapons["rows"]:  # SKINS.weapons.<AttachmentNodeLinking key>.<first_person|third_person>
+        shot_fx = ""
+        if row["muzzle_effect"] != "keep" or row["trail_effect"] != "keep":  # replaces the host's shot effects
+            fields = [("muzzle", row["muzzle_effect"]), ("trail", row["trail_effect"]), ("trail_variable", row["trail_variable"])]
+            shot_fx = "\tshot_fx = { " + ", ".join(f"{k} = {lua(v)}" for k, v in fields if v not in ("keep", "none")) + " },\n"
         out.append(
             f"-- {row['id']}: {row['source_model']} replaces {row['node_linking']} ({row['view']})\n"
             f"SKINS.weapons.{row['node_linking']} = SKINS.weapons.{row['node_linking']} or {{}}\n"
             f"SKINS.weapons.{row['node_linking']}.{row['view']} = {{\n"
             f"\tid = {lua(row['id'])},\n\tskin_unit = {lua(row['skin_unit'])},\n\tscale = {lua(row['scale'])},\n"
             f"\thide_inventory = false,\n\tsetting = {lua(row['setting'])},\n"
-            f"\tlinks = {{ {', '.join(lua(l) for l in row['link_nodes'])} }},\n}}\n")
+            f"\tlinks = {{ {', '.join(lua(l) for l in row['link_nodes'])} }},\n{shot_fx}}}\n")
     out.append("\nreturn SKINS\n")
     write(os.path.join(SCRIPTS, "dsv2_skins.lua"), "".join(out))
 

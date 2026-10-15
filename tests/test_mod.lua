@@ -15,6 +15,7 @@ end
 
 -- Engine stubs -------------------------------------------------------------------------------------------
 local units = {}
+particles = {}
 local next_id = 0
 
 local function new_unit(name, nodes, data)
@@ -33,7 +34,7 @@ Unit = {
 	set_unit_visibility = function (unit, visible) unit.visible = visible end,
 	has_node = function (unit, name) return unit.nodes[name] ~= nil end,
 	node = function (unit, name) return unit.nodes[name] end,
-	world_position = function () return "pos" end,
+	world_position = function () return Vector3(0, 0, 0) end,
 	world_rotation = function () return "rot" end,
 	set_local_scale = function (unit, node, scale) unit.scales[node] = scale end,
 	-- local poses: hosts report an "animated" rotation per node; skins record what the mod writes
@@ -58,11 +59,25 @@ World = {
 		child.links[#child.links + 1] = { child_node, parent, parent_node }
 	end,
 	destroy_unit = function (world, unit) unit.alive = false end,
+	create_particles = function (world, name, position, rotation)
+		particles[#particles + 1] = { name = name }
+
+		return #particles
+	end,
+	find_particles_variable = function (world, name, variable) return variable end,
+	set_particles_variable = function (world, id, variable, value) particles[id][variable] = value end,
 }
+Quaternion = { look = function () return "look" end }
 local vec_meta = { __mul = function (v, f) return setmetatable({ v[1] * f, v[2] * f, v[3] * f }, getmetatable(v)) end }
-Vector3 = setmetatable({ length = function (v) return math.sqrt(v[1] ^ 2 + v[2] ^ 2 + v[3] ^ 2) end },
+vec_meta.__sub = function (a, b) return setmetatable({ a[1] - b[1], a[2] - b[2], a[3] - b[3] }, vec_meta) end
+Vector3 = setmetatable({ length = function (v) return math.sqrt(v[1] ^ 2 + v[2] ^ 2 + v[3] ^ 2) end,
+	up = function () return Vector3(0, 0, 1) end },
 	{ __call = function (_, x, y, z) return setmetatable({ x, y, z }, vec_meta) end })
-Application = { can_get = function (kind, name) return kind == "unit" and name ~= "units/dsv2/missing/missing" end }
+Application = { can_get = function (kind, name)
+	return (kind == "unit" and name ~= "units/dsv2/missing/missing") or (kind == "particles" and name ~= "fx/not_loaded")
+end }
+-- the crank gun's shot: the game's version fires the gun's flow event (recorded here)
+ActionCareerDREngineer = { _add_bullet_trail = function (self, end_position) self.weapon_unit.game_trail = true end }
 
 local inventories = {}
 
@@ -130,7 +145,8 @@ local mod = {
 			weapons = {
 				rotary_gun = {
 					first_person = { id = "pulse_1p", skin_unit = "units/dsv2/pulse_1p/pulse_1p", scale = 1,
-						hide_inventory = false, setting = "isaac_engineer", links = { { 0, 0 } } },
+						hide_inventory = false, setting = "isaac_engineer", links = { { 0, 0 } },
+						shot_fx = { muzzle = "fx/muzzle", trail = "fx/trail", trail_variable = "size" } },
 				},
 			},
 		}
@@ -263,6 +279,11 @@ local rifle = skin_on(gun)
 check(rifle ~= nil and rifle.name == "units/dsv2/pulse_1p/pulse_1p" and gun.visible == false, "crank gun becomes the Pulse Rifle")
 AttachmentUtils.link(world, hand, gun, AttachmentNodeLinking.rotary_gun.first_person.unwielded)
 check(#rifle.links == 1, "re-linking the gun (holstered) does not add a second rifle")
+ActionCareerDREngineer._add_bullet_trail({ weapon_unit = gun }, Vector3(0, 10, 0), 1)
+check(not gun.game_trail and #particles == 2 and particles[1].name == "fx/muzzle" and particles[2].size[2] == 10,
+	"a rifle shot draws the rifle's muzzle flash and a 10 m tracer instead of the crank gun's")
+ActionCareerDREngineer._add_bullet_trail({ weapon_unit = hand }, Vector3(0, 10, 0), 1)
+check(hand.game_trail and #particles == 2, "guns without a skin keep the game's shot effects")
 AttachmentUtils.link(world, hand, new_unit("axe"), { {} })
 gun.alive = false
 mod.update(0.016)

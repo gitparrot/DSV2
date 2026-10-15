@@ -17,6 +17,7 @@ local wanted = setmetatable({}, { __mode = "k" }) -- unit -> visibility the game
 local weapon_entry_of -- AttachmentNodeLinking table -> weapon skin entry, built on first use
 local owner_of = {} -- hero 3rd-person mesh -> its player unit (to keep your own body out of your first-person view)
 local fp_hidden = {} -- hero 3rd-person mesh -> true while we hide its skin for the first-person camera
+local entry_of = {} -- host unit -> its skin entry
 local retarget_of = {} -- host unit -> { pairs = { host node, skin node, ... }, hips_host, hips_skin, factor }
 
 local function entry_for(unit, unit_template_name)
@@ -70,6 +71,7 @@ local function remove_skin(unit)
 	owner_of[unit] = nil
 	fp_hidden[unit] = nil
 	retarget_of[unit] = nil
+	entry_of[unit] = nil
 end
 
 -- Retarget skins have their own skeleton: a copy of the host's (same joint names, parents and rest orientations)
@@ -202,6 +204,7 @@ local function apply_skin(world, unit, entry, listen)
 	wanted[unit] = was_wanted
 	skin_of[unit] = skin
 	world_of[unit] = world
+	entry_of[unit] = entry
 
 	if was_wanted == false then
 		Unit.set_unit_visibility(skin, false)
@@ -310,6 +313,61 @@ mod:hook_safe(AttachmentUtils, "link", function (world, source, target, node_lin
 	end
 end)
 
+-- Shot effects (weapon_skins muzzle_effect / trail_effect). Each crank gun shot sets hit_position and fires
+-- lua_bullet_trail on the gun, whose flow draws the muzzle flash and tracer. The action keeps its own local copy of
+-- Unit.flow_event, so the hook goes on the action's method: a skinned gun with shot_fx draws its own effects
+-- from the gun's fx_muzzle node instead. Effects that aren't loaded fall back to the game's.
+local function can_spawn(entry, name)
+	if Application.can_get("particles", name) then
+		return true
+	end
+
+	warn_once(entry.id .. name, "%s: effect %s is not loaded; using the game's own", entry.id, name)
+
+	return false
+end
+
+local function spawn_shot_fx(weapon, end_position)
+	local entry = skin_of[weapon] and entry_of[weapon]
+	local fx = entry and entry.shot_fx
+	local world = world_of[weapon]
+
+	if not (fx and world and Unit.alive(weapon)) then
+		return false
+	end
+
+	if (fx.muzzle and not can_spawn(entry, fx.muzzle)) or (fx.trail and not can_spawn(entry, fx.trail)) then
+		return false
+	end
+
+	local start = Unit.world_position(weapon, Unit.has_node(weapon, "fx_muzzle") and Unit.node(weapon, "fx_muzzle") or 0)
+	local to_hit = end_position - start
+	local distance = Vector3.length(to_hit)
+	local rotation = distance > 0.001 and Quaternion.look(to_hit, Vector3.up()) or Unit.world_rotation(weapon, 0)
+
+	if fx.muzzle then
+		World.create_particles(world, fx.muzzle, start, rotation)
+	end
+
+	if fx.trail then
+		local id = World.create_particles(world, fx.trail, start, rotation)
+
+		if fx.trail_variable then
+			local variable = World.find_particles_variable(world, fx.trail, fx.trail_variable)
+
+			World.set_particles_variable(world, id, variable, Vector3(0.3, distance, 0))
+		end
+	end
+
+	return true
+end
+
+mod:hook(ActionCareerDREngineer, "_add_bullet_trail", function (func, self, end_position, lifetime)
+	if self.is_bot or not spawn_shot_fx(self.weapon_unit, end_position) then
+		return func(self, end_position, lifetime)
+	end
+end)
+
 mod:command("dsv2_status", "Necromorph Tide: how many units wear a skin right now", function ()
 	local alive = 0
 
@@ -407,4 +465,5 @@ mod.on_game_state_changed = function (status, state_name)
 	owner_of = {}
 	fp_hidden = {}
 	retarget_of = {}
+	entry_of = {}
 end

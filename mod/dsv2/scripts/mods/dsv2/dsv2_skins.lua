@@ -268,6 +268,7 @@ SKINS.weapons.rotary_gun.first_person = {
 	hide_inventory = false,
 	setting = "isaac_engineer",
 	links = { { 0, 0 } },
+	shot_fx = { muzzle = "fx/handgonne_muzzle_flash", trail = "fx/wpnfx_pistol_bullet_trail", trail_variable = "size" },
 }
 -- pulse_rifle_3p: pulse_rifle replaces rotary_gun (third_person)
 SKINS.weapons.rotary_gun = SKINS.weapons.rotary_gun or {}

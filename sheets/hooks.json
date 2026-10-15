@@ -73,6 +73,14 @@
    "source": "engine function, called from Lua by the game to show and hide units",
    "purpose": "Hosts wearing a skin stay hidden; the visibility the game asks for goes to the skin instead (first/third person switches, hidden weapons, frozen enemies).",
    "tested_in_game": false
+  },
+  {
+   "id": "weapon_shot_fx",
+   "target": "ActionCareerDREngineer._add_bullet_trail",
+   "kind": "hook",
+   "source": "vt2src scripts/settings/dlcs/cog/action_career_dr_engineer.lua:75; it fires lua_bullet_trail on the crank gun through a local copy of Unit.flow_event, so the method is hooked, not the engine call",
+   "purpose": "On a skinned weapon with its own effects (weapon_skins muzzle_effect/trail_effect), swallow the host's shot effect events and spawn the skin's muzzle flash and tracer instead.",
+   "tested_in_game": false
   }
  ]
 }
